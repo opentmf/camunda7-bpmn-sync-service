@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0y28x4z" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.12.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.19.0">
+  <bpmn:process id="Sample_BPMN" name="Sample_BPMN" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_10lhjsk</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="Event_0mb7hlf">
+      <bpmn:incoming>Flow_10arrvq</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="sampleTask" name="Sample Task" camunda:class="com.pia.bpmn.task.SampleTask">
+      <bpmn:incoming>Flow_10lhjsk</bpmn:incoming>
+      <bpmn:outgoing>Flow_18g0vxs</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="nonExistentTask" name="Nonexistent External Task" camunda:type="external" camunda:topic="nonExistentTopic">
+      <bpmn:incoming>Flow_18g0vxs</bpmn:incoming>
+      <bpmn:outgoing>Flow_10arrvq</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_10lhjsk" sourceRef="StartEvent_1" targetRef="sampleTask" />
+    <bpmn:sequenceFlow id="Flow_18g0vxs" sourceRef="sampleTask" targetRef="nonExistentTask" />
+    <bpmn:sequenceFlow id="Flow_10arrvq" sourceRef="nonExistentTask" targetRef="Event_0mb7hlf" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Sample_BPMN">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1w3geht_di" bpmnElement="sampleTask">
+        <dc:Bounds x="230" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0mb7hlf_di" bpmnElement="Event_0mb7hlf">
+        <dc:Bounds x="542" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0l2atzw_di" bpmnElement="nonExistentTask">
+        <dc:Bounds x="390" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_10lhjsk_di" bpmnElement="Flow_10lhjsk">
+        <di:waypoint x="188" y="120" />
+        <di:waypoint x="230" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18g0vxs_di" bpmnElement="Flow_18g0vxs">
+        <di:waypoint x="330" y="120" />
+        <di:waypoint x="390" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10arrvq_di" bpmnElement="Flow_10arrvq">
+        <di:waypoint x="490" y="120" />
+        <di:waypoint x="542" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,8 @@
+{
+  "code": "504",
+  "type": "Gateway Timeout",
+  "message": "Exceeded timeout value waiting for response from the remote Camunda server.",
+  "details": [
+    "Request was sent 30 seconds ago."
+  ]
+}

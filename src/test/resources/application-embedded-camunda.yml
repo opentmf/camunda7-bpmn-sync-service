@@ -1,0 +1,29 @@
+server:
+  port: ${desired.port}
+
+camunda:
+  bpm:
+    auto-deployment-enabled: false
+    client:
+      base-url: http://localhost:${desired.port}/engine-rest
+    database:
+      type: postgres
+      schema-update: true
+    generic-properties:
+      properties:
+        historyTimeToLive: P36500D
+
+pia:
+
+  bpmn-sync:
+    enabled: false
+    bpmn-version: 1.0.0
+    deployment-name: TestBpmnSync
+    auto-migrate: false
+
+  webclient:
+    openid:
+      client1:
+        connection-provider-name: client1-provider-embedded-camunda
+        token-config:
+          cache-name: client1-token-cache-embedded-camunda

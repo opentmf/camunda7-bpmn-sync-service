@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0ggubqt" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.7.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="uc_Sub_UCMiddleWare_AddNumbers" name="Sub UCMiddleware Add Numbers" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1yukfvt</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1yukfvt" sourceRef="StartEvent_1" targetRef="uc_initServiceOrderFlow" />
+    <bpmn:sequenceFlow id="Flow_1ppqfkz" sourceRef="uc_initServiceOrderFlow" targetRef="uc_preparePayloadAddNumbers" />
+    <bpmn:endEvent id="Event_0q5emzh">
+      <bpmn:incoming>Flow_1pk3k98</bpmn:incoming>
+      <bpmn:incoming>Flow_0mv6spy</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1u22xt7" sourceRef="uc_preparePayloadAddNumbers" targetRef="uc_postServiceOrder" />
+    <bpmn:serviceTask id="uc_initServiceOrderFlow" name="Init Service Order Flow" camunda:type="external" camunda:topic="uc_initServiceOrderFlow">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="currentProcessInstanceId">${execution.getProcessInstanceId()}</camunda:inputParameter>
+          <camunda:inputParameter name="requestType">addNumbers</camunda:inputParameter>
+          <camunda:outputParameter name="waitDurationAddNumbers">${waitDurationAddNumbers}</camunda:outputParameter>
+          <camunda:outputParameter name="requestType">${requestType}</camunda:outputParameter>
+          <camunda:outputParameter name="flowId">${flowId}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1yukfvt</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ppqfkz</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="uc_preparePayloadAddNumbers" name="Prepare Payload Add Numbers" camunda:type="external" camunda:topic="uc_preparePayloadAddNumbers">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="productOrderID">${productOrderID}</camunda:inputParameter>
+          <camunda:inputParameter name="productOrderItemID">${productOrderItemID}</camunda:inputParameter>
+          <camunda:inputParameter name="flowId">${flowId}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1ppqfkz</bpmn:incoming>
+      <bpmn:outgoing>Flow_1u22xt7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="uc_postServiceOrder" name="Post Service Order" camunda:asyncBefore="true" camunda:type="external" camunda:topic="uc_postServiceOrder">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="flowId">${flowId}</camunda:inputParameter>
+          <camunda:outputParameter name="serviceOrderId">${serviceOrderId}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1u22xt7</bpmn:incoming>
+      <bpmn:outgoing>Flow_0keu4w1</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0keu4w1" sourceRef="uc_postServiceOrder" targetRef="uc_sendServiceOrderCreatedMail" />
+    <bpmn:sequenceFlow id="triggerPoll" name="Trigger Poll" sourceRef="ifNoStatusUpdateYet" targetRef="uc_pollServiceOrder" />
+    <bpmn:exclusiveGateway id="Gateway_1le6h6j" default="Flow_11s9953">
+      <bpmn:incoming>Flow_1a348xs</bpmn:incoming>
+      <bpmn:outgoing>Flow_11s9953</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0413i4k</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="uc_pollServiceOrder" name="Poll Service Order" camunda:type="external" camunda:topic="uc_pollServiceOrder">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="serviceOrderId">${serviceOrderId}</camunda:inputParameter>
+          <camunda:inputParameter name="flowId">${flowId}</camunda:inputParameter>
+          <camunda:outputParameter name="isFinalState">${isFinalState}</camunda:outputParameter>
+          <camunda:outputParameter name="status">${status}</camunda:outputParameter>
+          <camunda:outputParameter name="emailDescription">${emailDescription}</camunda:outputParameter>
+          <camunda:outputParameter name="errorCode">${errorCode}</camunda:outputParameter>
+          <camunda:outputParameter name="errorMessage">${errorMessage}</camunda:outputParameter>
+          <camunda:outputParameter name="errorReason">${errorReason}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>triggerPoll</bpmn:incoming>
+      <bpmn:outgoing>Flow_0bcmsak</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:receiveTask id="uc_addNumbers_waitForStatusUpdate" name="Wait For Status Update" messageRef="Message_17mih9t">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="serviceOrderId">${serviceOrderId}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0smvlo2</bpmn:incoming>
+      <bpmn:incoming>Flow_0rts0xs</bpmn:incoming>
+      <bpmn:outgoing>Flow_04wd3kg</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:serviceTask id="uc_sendAddNumbersFailedMail" name="Send Add Numbers Failed Mail" camunda:type="external" camunda:topic="uc_prepareAndSendEmail">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="emailTemplateName">AddNumbersFailed</camunda:inputParameter>
+          <camunda:inputParameter name="emailTo" />
+          <camunda:inputParameter name="emailCc" />
+          <camunda:inputParameter name="emailSubject">Service Order Failed ([requestType])</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_11s9953</bpmn:incoming>
+      <bpmn:outgoing>Flow_1pk3k98</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="ifNoStatusUpdateYet" name="If No Status Update Yet" attachedToRef="uc_addNumbers_waitForStatusUpdate">
+      <bpmn:outgoing>triggerPoll</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_11ji6t1">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">${waitDurationAddNumbers}</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="uc_parseAddedAndFailedNumbers" name="Parse Added And Failed Numbers" camunda:type="external" camunda:topic="uc_parseAddedAndFailedNumbers">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="flowId">${flowId}</camunda:inputParameter>
+          <camunda:outputParameter name="isAllNumbersCollected">${isAllNumbersCollected}</camunda:outputParameter>
+          <camunda:outputParameter name="isNumbersAvailableForOnboarding">${isNumbersAvailableForOnboarding}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0l8oy2f</bpmn:incoming>
+      <bpmn:outgoing>Flow_1a348xs</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1a348xs" sourceRef="uc_parseAddedAndFailedNumbers" targetRef="Gateway_1le6h6j" />
+    <bpmn:sequenceFlow id="Flow_11s9953" sourceRef="Gateway_1le6h6j" targetRef="uc_sendAddNumbersFailedMail" />
+    <bpmn:sequenceFlow id="Flow_1pk3k98" sourceRef="uc_sendAddNumbersFailedMail" targetRef="Event_0q5emzh" />
+    <bpmn:sequenceFlow id="Flow_0413i4k" name="${status == &#34;completed&#34;}" sourceRef="Gateway_1le6h6j" targetRef="uc_sendServiceOrderCompletedMail">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${status == "completed"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:exclusiveGateway id="Gateway_1aafih0" default="Flow_0smvlo2">
+      <bpmn:incoming>Flow_0bcmsak</bpmn:incoming>
+      <bpmn:incoming>Flow_04wd3kg</bpmn:incoming>
+      <bpmn:outgoing>Flow_0l8oy2f</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0smvlo2</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_0l8oy2f" name="${isFinalState}" sourceRef="Gateway_1aafih0" targetRef="uc_parseAddedAndFailedNumbers">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${isFinalState}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0smvlo2" sourceRef="Gateway_1aafih0" targetRef="uc_addNumbers_waitForStatusUpdate" />
+    <bpmn:sequenceFlow id="Flow_0bcmsak" sourceRef="uc_pollServiceOrder" targetRef="Gateway_1aafih0" />
+    <bpmn:sequenceFlow id="Flow_04wd3kg" sourceRef="uc_addNumbers_waitForStatusUpdate" targetRef="Gateway_1aafih0" />
+    <bpmn:serviceTask id="uc_sendServiceOrderCreatedMail" name="Send Service Order Created Mail" camunda:asyncBefore="true" camunda:type="external" camunda:topic="uc_prepareAndSendEmail">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="emailTemplateName">ServiceOrderCreated</camunda:inputParameter>
+          <camunda:inputParameter name="emailTo" />
+          <camunda:inputParameter name="emailCc" />
+          <camunda:inputParameter name="emailSubject">Service Order Created ([requestType])</camunda:inputParameter>
+          <camunda:inputParameter name="serviceOrderId">${serviceOrderId}</camunda:inputParameter>
+          <camunda:inputParameter name="requestType">${requestType}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0keu4w1</bpmn:incoming>
+      <bpmn:outgoing>Flow_0rts0xs</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0rts0xs" sourceRef="uc_sendServiceOrderCreatedMail" targetRef="uc_addNumbers_waitForStatusUpdate" />
+    <bpmn:serviceTask id="uc_sendServiceOrderCompletedMail" name="Send Service Order Completed Mail" camunda:asyncBefore="true" camunda:type="external" camunda:topic="uc_prepareAndSendEmail">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="emailTemplateName">ServiceOrderCompleted</camunda:inputParameter>
+          <camunda:inputParameter name="emailTo" />
+          <camunda:inputParameter name="emailCc" />
+          <camunda:inputParameter name="emailSubject">Service Order Completed ([requestType])</camunda:inputParameter>
+          <camunda:inputParameter name="serviceOrderId">${serviceOrderId}</camunda:inputParameter>
+          <camunda:inputParameter name="requestType">${requestType}</camunda:inputParameter>
+          <camunda:inputParameter name="status">${status}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0413i4k</bpmn:incoming>
+      <bpmn:outgoing>Flow_0mv6spy</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0mv6spy" sourceRef="uc_sendServiceOrderCompletedMail" targetRef="Event_0q5emzh" />
+  </bpmn:process>
+  <bpmn:message id="Message_17mih9t" name="ucMiddlewareResponse" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="uc_Sub_UCMiddleWare_AddNumbers">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="156" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0q5emzh_di" bpmnElement="Event_0q5emzh">
+        <dc:Bounds x="1425" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0v9o4r8_di" bpmnElement="uc_initServiceOrderFlow">
+        <dc:Bounds x="220" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0oqavvs_di" bpmnElement="uc_preparePayloadAddNumbers">
+        <dc:Bounds x="350" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0dysf41_di" bpmnElement="uc_postServiceOrder">
+        <dc:Bounds x="479" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1le6h6j_di" bpmnElement="Gateway_1le6h6j" isMarkerVisible="true">
+        <dc:Bounds x="1166" y="95" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1k0xe2h_di" bpmnElement="uc_pollServiceOrder">
+        <dc:Bounds x="798" y="236" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0e6lo43_di" bpmnElement="uc_addNumbers_waitForStatusUpdate">
+        <dc:Bounds x="738" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="prepareAndSendEmail_di" bpmnElement="uc_sendAddNumbersFailedMail">
+        <dc:Bounds x="1296" y="236" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0cl2h9r_di" bpmnElement="uc_parseAddedAndFailedNumbers">
+        <dc:Bounds x="1033" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1aafih0_di" bpmnElement="Gateway_1aafih0" isMarkerVisible="true">
+        <dc:Bounds x="984" y="251" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0u49pdo" bpmnElement="uc_sendServiceOrderCreatedMail">
+        <dc:Bounds x="610" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1248wnz" bpmnElement="uc_sendServiceOrderCompletedMail">
+        <dc:Bounds x="1293" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_179v2nz_di" bpmnElement="ifNoStatusUpdateYet">
+        <dc:Bounds x="820" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="862" y="156" width="58" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1yukfvt_di" bpmnElement="Flow_1yukfvt">
+        <di:waypoint x="192" y="120" />
+        <di:waypoint x="220" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ppqfkz_di" bpmnElement="Flow_1ppqfkz">
+        <di:waypoint x="320" y="120" />
+        <di:waypoint x="350" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1u22xt7_di" bpmnElement="Flow_1u22xt7">
+        <di:waypoint x="450" y="120" />
+        <di:waypoint x="479" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0keu4w1_di" bpmnElement="Flow_0keu4w1">
+        <di:waypoint x="579" y="120" />
+        <di:waypoint x="610" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0oe93hl_di" bpmnElement="triggerPoll">
+        <di:waypoint x="838" y="178" />
+        <di:waypoint x="838" y="236" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="852" y="213" width="56" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1a348xs_di" bpmnElement="Flow_1a348xs">
+        <di:waypoint x="1133" y="120" />
+        <di:waypoint x="1166" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11s9953_di" bpmnElement="Flow_11s9953">
+        <di:waypoint x="1191" y="145" />
+        <di:waypoint x="1191" y="276" />
+        <di:waypoint x="1296" y="276" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pk3k98_di" bpmnElement="Flow_1pk3k98">
+        <di:waypoint x="1396" y="276" />
+        <di:waypoint x="1443" y="276" />
+        <di:waypoint x="1443" y="138" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0413i4k_di" bpmnElement="Flow_0413i4k">
+        <di:waypoint x="1216" y="120" />
+        <di:waypoint x="1293" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1211" y="126" width="63" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0l8oy2f_di" bpmnElement="Flow_0l8oy2f">
+        <di:waypoint x="1009" y="251" />
+        <di:waypoint x="1009" y="120" />
+        <di:waypoint x="1033" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="989" y="179" width="72" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0smvlo2_di" bpmnElement="Flow_0smvlo2">
+        <di:waypoint x="1009" y="301" />
+        <di:waypoint x="1009" y="340" />
+        <di:waypoint x="760" y="340" />
+        <di:waypoint x="760" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bcmsak_di" bpmnElement="Flow_0bcmsak">
+        <di:waypoint x="898" y="276" />
+        <di:waypoint x="984" y="276" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04wd3kg_di" bpmnElement="Flow_04wd3kg">
+        <di:waypoint x="838" y="120" />
+        <di:waypoint x="950" y="120" />
+        <di:waypoint x="950" y="276" />
+        <di:waypoint x="984" y="276" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0rts0xs_di" bpmnElement="Flow_0rts0xs">
+        <di:waypoint x="710" y="120" />
+        <di:waypoint x="738" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0mv6spy_di" bpmnElement="Flow_0mv6spy">
+        <di:waypoint x="1393" y="120" />
+        <di:waypoint x="1425" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

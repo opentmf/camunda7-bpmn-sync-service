@@ -1,0 +1,19 @@
+camunda:
+  bpm:
+    enabled: false
+    client:
+      base-url: http://localhost/engine-rest
+
+pia:
+  bpmn-sync:
+    enabled: false
+    deployment-name: TestDeployment
+    auto-migrate: false
+    bpmn-version: v1
+
+  webclient:
+    openid:
+      client1:
+        connection-provider-name: client1-provider-it
+        token-config:
+          cache-name: client1-token-cache-it

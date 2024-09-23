@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0qeh0qr" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.7.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.18.0">
+  <bpmn:process id="UCLicense_Add" name="UC License Add" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1mrd85q</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="Event_0qf4uk4">
+      <bpmn:incoming>Flow_1w6m9w2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1mrd85q" sourceRef="StartEvent_1" targetRef="uc_Sub_UCMiddleWare_AddLicense" />
+    <bpmn:sequenceFlow id="Flow_16ztfs4" sourceRef="uc_Sub_UCMiddleWare_AddLicense" targetRef="uc_createOrUpdateLicenseProductInventory" />
+    <bpmn:sequenceFlow id="Flow_1w6m9w2" sourceRef="uc_createOrUpdateLicenseProductInventory" targetRef="Event_0qf4uk4" />
+    <bpmn:callActivity id="uc_Sub_UCMiddleWare_AddLicense" name="Sub UCMiddleWare Add License" calledElement="uc_Sub_UCMiddleWare_AddLicense">
+      <bpmn:extensionElements>
+        <camunda:in variables="all" />
+        <camunda:out variables="all" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1mrd85q</bpmn:incoming>
+      <bpmn:outgoing>Flow_16ztfs4</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:serviceTask id="uc_createOrUpdateLicenseProductInventory" name="Create or Update License Product Inventory" camunda:type="external" camunda:topic="uc_createOrUpdateLicenseProductInventory">
+      <bpmn:incoming>Flow_16ztfs4</bpmn:incoming>
+      <bpmn:outgoing>Flow_1w6m9w2</bpmn:outgoing>
+    </bpmn:serviceTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="UCLicense_Add">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="132" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1jw3cxz_di" bpmnElement="uc_Sub_UCMiddleWare_AddLicense">
+        <dc:Bounds x="243" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_15rico2_di" bpmnElement="uc_createOrUpdateLicenseProductInventory">
+        <dc:Bounds x="424" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0qf4uk4_di" bpmnElement="Event_0qf4uk4">
+        <dc:Bounds x="609" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1mrd85q_di" bpmnElement="Flow_1mrd85q">
+        <di:waypoint x="168" y="120" />
+        <di:waypoint x="243" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16ztfs4_di" bpmnElement="Flow_16ztfs4">
+        <di:waypoint x="343" y="120" />
+        <di:waypoint x="424" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1w6m9w2_di" bpmnElement="Flow_1w6m9w2">
+        <di:waypoint x="524" y="120" />
+        <di:waypoint x="609" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

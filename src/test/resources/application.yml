@@ -1,0 +1,48 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:16.4-alpine:///db
+    hikari:
+      schema: public
+      minimum-idle: 0
+      maximum-pool-size: 5
+
+server:
+  shutdown: graceful
+
+logging:
+  config: classpath:logback-test.xml
+
+logbook:
+  format:
+    style: http
+
+pia:
+  db-lock:
+    lock-acquire-poll-interval: 100
+    lock-acquire-timeout: 1000
+    lock-hold-timeout: 60000
+
+  bpmn-sync:
+    token-service: openidTokenService
+    web-client: openidWebClient
+    client-configuration: openidClientProperties
+
+  webclient:
+    openid:
+      client1:
+        connection-provider-name: client1-provider
+        request-timeout-millis: 30_000
+        response-timeout-millis: 50_000
+        num-retries: 3
+        retry-wait-millis: 100
+        token-config:
+          token-url: http://localhost:1080/oauth2/token
+          basic-auth-username: user
+          basic-auth-password: pass
+          cache-name: client1-token-cache
+          cache-expiry-seconds: 60
+          form-data:
+            username: user
+            password: pass
+            scope: openid
+            grant_type: password

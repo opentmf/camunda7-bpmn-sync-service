@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0ggubqt" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.10.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="UCLicense_Modify" name="UC License Modify" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_1yukfvt</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1yukfvt" sourceRef="StartEvent_1" targetRef="uc_initServiceOrderFlow" />
+    <bpmn:sequenceFlow id="Flow_1ppqfkz" sourceRef="uc_initServiceOrderFlow" targetRef="uc_preparePayloadModifyLicense" />
+    <bpmn:endEvent id="Event_0q5emzh">
+      <bpmn:incoming>Flow_0pnuce0</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0pnuce0" sourceRef="uc_finalizeServiceOrderFlow" targetRef="Event_0q5emzh" />
+    <bpmn:sequenceFlow id="Flow_1u22xt7" sourceRef="uc_preparePayloadModifyLicense" targetRef="uc_postServiceOrder" />
+    <bpmn:serviceTask id="uc_initServiceOrderFlow" name="Init Service Order Flow" camunda:type="external" camunda:topic="uc_initServiceOrderFlow">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="currentProcessInstanceId">${execution.getProcessInstanceId()}</camunda:inputParameter>
+          <camunda:inputParameter name="requestType">modifyLicense</camunda:inputParameter>
+          <camunda:outputParameter name="waitDurationAddLicense">${waitDurationAddLicense}</camunda:outputParameter>
+          <camunda:outputParameter name="requestType">${requestType}</camunda:outputParameter>
+          <camunda:outputParameter name="flowId">${flowId}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1yukfvt</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ppqfkz</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="uc_preparePayloadModifyLicense" name="Prepare Payload Modify License" camunda:type="external" camunda:topic="uc_preparePayloadModifyLicense">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="productOrderID">${productOrderID}</camunda:inputParameter>
+          <camunda:inputParameter name="productOrderItemID">${productOrderItemID}</camunda:inputParameter>
+          <camunda:inputParameter name="flowId">${flowId}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1ppqfkz</bpmn:incoming>
+      <bpmn:outgoing>Flow_1u22xt7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="uc_postServiceOrder" name="Post Service Order" camunda:asyncBefore="true" camunda:type="external" camunda:topic="uc_postServiceOrder">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="flowId">${flowId}</camunda:inputParameter>
+          <camunda:outputParameter name="serviceOrderId">${serviceOrderId}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1u22xt7</bpmn:incoming>
+      <bpmn:outgoing>Flow_0keu4w1</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0keu4w1" sourceRef="uc_postServiceOrder" targetRef="uc_sendServiceOrderCreatedMail" />
+    <bpmn:sequenceFlow id="triggerPoll" name="Trigger Poll" sourceRef="ifNoStatusUpdateYet" targetRef="uc_pollServiceOrder" />
+    <bpmn:exclusiveGateway id="Gateway_1le6h6j" default="Flow_06alk7f">
+      <bpmn:incoming>Flow_1wik5qg</bpmn:incoming>
+      <bpmn:incoming>Flow_061759z</bpmn:incoming>
+      <bpmn:outgoing>Flow_06alk7f</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1a7zwh5</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0s5nvyb</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="uc_pollServiceOrder" name="Poll Service Order" camunda:type="external" camunda:topic="uc_pollServiceOrder">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="serviceOrderId">${serviceOrderId}</camunda:inputParameter>
+          <camunda:inputParameter name="flowId">${flowId}</camunda:inputParameter>
+          <camunda:outputParameter name="isFinalState">${isFinalState}</camunda:outputParameter>
+          <camunda:outputParameter name="status">${status}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>triggerPoll</bpmn:incoming>
+      <bpmn:outgoing>Flow_1wik5qg</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="uc_finalizeServiceOrderFlow" name="Finalize Service Order Flow" camunda:type="external" camunda:topic="uc_finalizeServiceOrderFlow">
+      <bpmn:incoming>Flow_0ucguuf</bpmn:incoming>
+      <bpmn:incoming>Flow_17phiqi</bpmn:incoming>
+      <bpmn:outgoing>Flow_0pnuce0</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0s5nvyb" name="${status == &#34;completed&#34;}" sourceRef="Gateway_1le6h6j" targetRef="uc_sendServiceOrderCompleted">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${status=="completed"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:receiveTask id="uc_LicenseModify_waitForStatusUpdate" name="Wait For Status Update" messageRef="Message_17mih9t">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="serviceOrderId">${serviceOrderId}</camunda:inputParameter>
+          <camunda:outputParameter name="serviceOrderId">${serviceOrderId}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_06alk7f</bpmn:incoming>
+      <bpmn:incoming>Flow_0h6ghyz</bpmn:incoming>
+      <bpmn:outgoing>Flow_061759z</bpmn:outgoing>
+    </bpmn:receiveTask>
+    <bpmn:serviceTask id="uc_sendAddLicenseFailedMail" name="Send Add License Failed Mail" camunda:type="external" camunda:topic="uc_prepareAndSendEmail">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="emailTemplateName">AddLicenseFailed</camunda:inputParameter>
+          <camunda:inputParameter name="emailTo" />
+          <camunda:inputParameter name="emailCc" />
+          <camunda:inputParameter name="emailSubject">Service Order Failed ([requestType])</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1a7zwh5</bpmn:incoming>
+      <bpmn:outgoing>Flow_1pk3k98</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1pk3k98" sourceRef="uc_sendAddLicenseFailedMail" targetRef="uc_Sub_HT_SetStatusManually" />
+    <bpmn:callActivity id="uc_Sub_HT_SetStatusManually" name="HT Set Status Manually" calledElement="uc_Sub_HT_SetStatusManually">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="notificationType">starter</camunda:inputParameter>
+          <camunda:inputParameter name="processStep">UC Unity Order</camunda:inputParameter>
+          <camunda:inputParameter name="processSubStep">- Set Add License Status</camunda:inputParameter>
+          <camunda:inputParameter name="taskDescription">Service Order with id=${serviceOrderId} failed with status = "${status}" at UC Middleware. Please choose final service order state.</camunda:inputParameter>
+          <camunda:inputParameter name="productOrderName">VBUC License Acknowledgement</camunda:inputParameter>
+          <camunda:outputParameter name="status">${status}</camunda:outputParameter>
+        </camunda:inputOutput>
+        <camunda:out variables="all" />
+        <camunda:in variables="all" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1pk3k98</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ucguuf</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_0ucguuf" sourceRef="uc_Sub_HT_SetStatusManually" targetRef="uc_finalizeServiceOrderFlow" />
+    <bpmn:sequenceFlow id="Flow_1a7zwh5" name="${status != &#34;completed&#34; &#38;&#38; isFinalState}" sourceRef="Gateway_1le6h6j" targetRef="uc_sendAddLicenseFailedMail">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${status != "completed" &amp;&amp; isFinalState}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_06alk7f" sourceRef="Gateway_1le6h6j" targetRef="uc_LicenseModify_waitForStatusUpdate" />
+    <bpmn:sequenceFlow id="Flow_1wik5qg" sourceRef="uc_pollServiceOrder" targetRef="Gateway_1le6h6j" />
+    <bpmn:sequenceFlow id="Flow_061759z" sourceRef="uc_LicenseModify_waitForStatusUpdate" targetRef="Gateway_1le6h6j" />
+    <bpmn:boundaryEvent id="ifNoStatusUpdateYet" name="If No Status Update Yet" attachedToRef="uc_LicenseModify_waitForStatusUpdate">
+      <bpmn:outgoing>triggerPoll</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_024wpwz">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">${waitDurationAddLicense}</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="uc_sendServiceOrderCreatedMail" name="Send Service Order Created Mail" camunda:asyncBefore="true" camunda:type="external" camunda:topic="uc_prepareAndSendEmail">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="emailTemplateName">ServiceOrderCreated</camunda:inputParameter>
+          <camunda:inputParameter name="emailTo" />
+          <camunda:inputParameter name="emailCc" />
+          <camunda:inputParameter name="emailSubject">Service Order Created ([requestType])</camunda:inputParameter>
+          <camunda:inputParameter name="serviceOrderId">${serviceOrderId}</camunda:inputParameter>
+          <camunda:inputParameter name="requestType">${requestType}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0keu4w1</bpmn:incoming>
+      <bpmn:outgoing>Flow_0h6ghyz</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0h6ghyz" sourceRef="uc_sendServiceOrderCreatedMail" targetRef="uc_LicenseModify_waitForStatusUpdate" />
+    <bpmn:serviceTask id="uc_sendServiceOrderCompleted" name="Send Service Order Completed Mail" camunda:asyncBefore="true" camunda:type="external" camunda:topic="uc_prepareAndSendEmail">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="emailTemplateName">ServiceOrderCompleted</camunda:inputParameter>
+          <camunda:inputParameter name="emailTo" />
+          <camunda:inputParameter name="emailCc" />
+          <camunda:inputParameter name="emailSubject">Service Order Completed ([requestType])</camunda:inputParameter>
+          <camunda:inputParameter name="serviceOrderId">${serviceOrderId}</camunda:inputParameter>
+          <camunda:inputParameter name="requestType">${requestType}</camunda:inputParameter>
+          <camunda:inputParameter name="status">${status}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0s5nvyb</bpmn:incoming>
+      <bpmn:outgoing>Flow_17phiqi</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_17phiqi" sourceRef="uc_sendServiceOrderCompleted" targetRef="uc_finalizeServiceOrderFlow" />
+  </bpmn:process>
+  <bpmn:message id="Message_17mih9t" name="ucMiddlewareResponse" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="UCLicense_Modify">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0q5emzh_di" bpmnElement="Event_0q5emzh">
+        <dc:Bounds x="1477" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0v9o4r8_di" bpmnElement="uc_initServiceOrderFlow">
+        <dc:Bounds x="220" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0oqavvs_di" bpmnElement="uc_preparePayloadModifyLicense">
+        <dc:Bounds x="350" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0dysf41_di" bpmnElement="uc_postServiceOrder">
+        <dc:Bounds x="480" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1le6h6j_di" bpmnElement="Gateway_1le6h6j" isMarkerVisible="true">
+        <dc:Bounds x="1005" y="248" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1k0xe2h_di" bpmnElement="uc_pollServiceOrder">
+        <dc:Bounds x="810" y="233" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1qrxkv4_di" bpmnElement="uc_finalizeServiceOrderFlow">
+        <dc:Bounds x="1330" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0e6lo43_di" bpmnElement="uc_LicenseModify_waitForStatusUpdate">
+        <dc:Bounds x="750" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="prepareAndSendEmail_di" bpmnElement="uc_sendAddLicenseFailedMail">
+        <dc:Bounds x="1184" y="233" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_071xhxt_di" bpmnElement="uc_Sub_HT_SetStatusManually">
+        <dc:Bounds x="1330" y="233" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0u49pdo" bpmnElement="uc_sendServiceOrderCreatedMail">
+        <dc:Bounds x="610" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_142279q" bpmnElement="uc_sendServiceOrderCompleted">
+        <dc:Bounds x="1182" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1uk8dft_di" bpmnElement="ifNoStatusUpdateYet">
+        <dc:Bounds x="832" y="142" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="874" y="156" width="58" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1yukfvt_di" bpmnElement="Flow_1yukfvt">
+        <di:waypoint x="188" y="120" />
+        <di:waypoint x="220" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ppqfkz_di" bpmnElement="Flow_1ppqfkz">
+        <di:waypoint x="320" y="120" />
+        <di:waypoint x="350" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0pnuce0_di" bpmnElement="Flow_0pnuce0">
+        <di:waypoint x="1430" y="120" />
+        <di:waypoint x="1477" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1u22xt7_di" bpmnElement="Flow_1u22xt7">
+        <di:waypoint x="450" y="120" />
+        <di:waypoint x="480" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0keu4w1_di" bpmnElement="Flow_0keu4w1">
+        <di:waypoint x="580" y="120" />
+        <di:waypoint x="610" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0oe93hl_di" bpmnElement="triggerPoll">
+        <di:waypoint x="850" y="178" />
+        <di:waypoint x="850" y="233" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="862" y="213" width="56" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0s5nvyb_di" bpmnElement="Flow_0s5nvyb">
+        <di:waypoint x="1030" y="248" />
+        <di:waypoint x="1030" y="120" />
+        <di:waypoint x="1182" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1056" y="86" width="63" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1pk3k98_di" bpmnElement="Flow_1pk3k98">
+        <di:waypoint x="1284" y="273" />
+        <di:waypoint x="1330" y="273" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ucguuf_di" bpmnElement="Flow_0ucguuf">
+        <di:waypoint x="1380" y="233" />
+        <di:waypoint x="1380" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1a7zwh5_di" bpmnElement="Flow_1a7zwh5">
+        <di:waypoint x="1055" y="273" />
+        <di:waypoint x="1184" y="273" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1064" y="214" width="77" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06alk7f_di" bpmnElement="Flow_06alk7f">
+        <di:waypoint x="1030" y="298" />
+        <di:waypoint x="1030" y="350" />
+        <di:waypoint x="770" y="350" />
+        <di:waypoint x="770" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1wik5qg_di" bpmnElement="Flow_1wik5qg">
+        <di:waypoint x="910" y="273" />
+        <di:waypoint x="1005" y="273" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_061759z_di" bpmnElement="Flow_061759z">
+        <di:waypoint x="850" y="120" />
+        <di:waypoint x="950" y="120" />
+        <di:waypoint x="950" y="273" />
+        <di:waypoint x="1005" y="273" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0h6ghyz_di" bpmnElement="Flow_0h6ghyz">
+        <di:waypoint x="710" y="120" />
+        <di:waypoint x="750" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17phiqi_di" bpmnElement="Flow_17phiqi">
+        <di:waypoint x="1282" y="120" />
+        <di:waypoint x="1330" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_13gg98w" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.6.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="UCMainNumber_Add" name="UC MainNumber Add" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0scdpsa</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0scdpsa" sourceRef="StartEvent_1" targetRef="prepareCollectMainPSTNNumberContextTask" />
+    <bpmn:endEvent id="Event_0iddvdr">
+      <bpmn:incoming>Flow_1ksemqq</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="uc_Sub_UCMiddleWare_CreateAccount" name="Sub UCMiddleWare Create Account" camunda:asyncBefore="true" calledElement="uc_Sub_UCMiddleWare_CreateAccount">
+      <bpmn:extensionElements>
+        <camunda:in variables="all" />
+        <camunda:out variables="all" />
+        <camunda:inputOutput>
+          <camunda:inputParameter name="pstnMainNumber">${pstnMainNumber}</camunda:inputParameter>
+          <camunda:outputParameter name="status">${status}</camunda:outputParameter>
+          <camunda:outputParameter name="serviceOrderId">${serviceOrderId}</camunda:outputParameter>
+          <camunda:outputParameter name="rcUid">${rcUid}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_16jcr0x</bpmn:incoming>
+      <bpmn:outgoing>Flow_17jo0zg</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:callActivity id="uc_Sub_HT_CollectMainPSTNNumber" name="HT Collect Main PSTN Number" calledElement="uc_Sub_HT_CollectMainPSTNNumber">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="taskDescription">Collect Main PSTN Number for productOrderId = ${productOrderID}. 
+Customer site names:  ${customerSiteNames}</camunda:inputParameter>
+          <camunda:inputParameter name="notificationType">starter</camunda:inputParameter>
+          <camunda:inputParameter name="processSubStep">- Enter Main Number</camunda:inputParameter>
+          <camunda:inputParameter name="processStep">UC Unity Order</camunda:inputParameter>
+          <camunda:inputParameter name="productOrderName">VBUC Main Number</camunda:inputParameter>
+          <camunda:outputParameter name="pstnMainNumber">${pstnMainNumber}</camunda:outputParameter>
+          <camunda:outputParameter name="numberType">${numberType}</camunda:outputParameter>
+          <camunda:outputParameter name="siteName">${siteName}</camunda:outputParameter>
+        </camunda:inputOutput>
+        <camunda:out variables="all" />
+        <camunda:in variables="all" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1brrdpy</bpmn:incoming>
+      <bpmn:incoming>Flow_131mr02</bpmn:incoming>
+      <bpmn:incoming>Flow_12wttsy</bpmn:incoming>
+      <bpmn:outgoing>Flow_02lhivl</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:callActivity id="uc_Sub_Onboard_MainNumber" name="Sub Onboard Main Number" calledElement="uc_Sub_Onboard_MainNumber">
+      <bpmn:extensionElements>
+        <camunda:in variables="all" />
+        <camunda:out variables="all" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_17jo0zg</bpmn:incoming>
+      <bpmn:incoming>Flow_06vv7oe</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ksemqq</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_1ksemqq" sourceRef="uc_Sub_Onboard_MainNumber" targetRef="Event_0iddvdr" />
+    <bpmn:serviceTask id="validateMainNumber" name="Validate Main Number" camunda:type="external" camunda:topic="uc_validateMainNumber">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="pstnMainNumber">${pstnMainNumber}</camunda:inputParameter>
+          <camunda:inputParameter name="numberType">${numberType}</camunda:inputParameter>
+          <camunda:inputParameter name="siteName">${siteName}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_02lhivl</bpmn:incoming>
+      <bpmn:outgoing>Flow_16jcr0x</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="updateUCCache" name="Update UC Cache" camunda:type="external" camunda:topic="uc_updateUCCache">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="productOrderID">${productOrderID}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1h1q3hu</bpmn:incoming>
+      <bpmn:outgoing>Flow_1brrdpy</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1brrdpy" sourceRef="updateUCCache" targetRef="uc_Sub_HT_CollectMainPSTNNumber" />
+    <bpmn:sequenceFlow id="Flow_02lhivl" sourceRef="uc_Sub_HT_CollectMainPSTNNumber" targetRef="validateMainNumber" />
+    <bpmn:sequenceFlow id="Flow_16jcr0x" sourceRef="validateMainNumber" targetRef="uc_Sub_UCMiddleWare_CreateAccount" />
+    <bpmn:serviceTask id="uc_updateServiceOrderStatus" name="Update Service Order Status" camunda:type="external" camunda:topic="uc_updateServiceOrderStatus">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="status">${status}</camunda:inputParameter>
+          <camunda:inputParameter name="serviceOrderId">${serviceOrderId}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_06as4xq</bpmn:incoming>
+      <bpmn:outgoing>Flow_1c60fma</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:callActivity id="uc_Sub_HT_CorrectProblem" name="Sub HT Correct Problem" calledElement="uc_Sub_HT_CorrectProblem">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="processStep">UC Unity Order</camunda:inputParameter>
+          <camunda:inputParameter name="processSubStep">- Correct Problem</camunda:inputParameter>
+          <camunda:inputParameter name="taskDescription">Unable to add main number (${pstnMainNumber}) for product order id = "${productOrderID}" and product order item id = "${productOrderItemID}". Indicated status value from UC Middleware = "${status}". Error Code: ${errorCode},  Error Reason: ${errorReason}, Error Message: ${errorMessage}  Please choose next action.</camunda:inputParameter>
+          <camunda:inputParameter name="notificationType">starter</camunda:inputParameter>
+          <camunda:inputParameter name="productOrderName">VBUC Account Creation Problems</camunda:inputParameter>
+          <camunda:inputParameter name="rcUid">${rcUid}</camunda:inputParameter>
+          <camunda:outputParameter name="status">${status}</camunda:outputParameter>
+        </camunda:inputOutput>
+        <camunda:out variables="all" />
+        <camunda:in variables="all" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0tj1jx1</bpmn:incoming>
+      <bpmn:outgoing>Flow_02los57</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:exclusiveGateway id="Gateway_0fs52fh">
+      <bpmn:incoming>Flow_02los57</bpmn:incoming>
+      <bpmn:outgoing>Flow_1h1q3hu</bpmn:outgoing>
+      <bpmn:outgoing>Flow_06as4xq</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_02los57" sourceRef="uc_Sub_HT_CorrectProblem" targetRef="Gateway_0fs52fh" />
+    <bpmn:sequenceFlow id="Flow_1h1q3hu" name="${status == &#34;retry&#34;}" sourceRef="Gateway_0fs52fh" targetRef="updateUCCache">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${status == "retry"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_06as4xq" name="${status == &#34;completed&#34;}" sourceRef="Gateway_0fs52fh" targetRef="uc_updateServiceOrderStatus">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${status == "completed"}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1c60fma" sourceRef="uc_updateServiceOrderStatus" targetRef="uc_markMainNumberCollected" />
+    <bpmn:serviceTask id="uc_sendMainNumberValidationFailedMail" name="Send Main Number Validation Failed Mail" camunda:type="external" camunda:topic="uc_prepareAndSendEmail">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="emailTemplateName">MainNumberValidationFailed</camunda:inputParameter>
+          <camunda:inputParameter name="emailTo" />
+          <camunda:inputParameter name="emailCc" />
+          <camunda:inputParameter name="emailSubject">Main Number Validation Failed for [productOrderID]</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1xsuozv</bpmn:incoming>
+      <bpmn:outgoing>Flow_131mr02</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_131mr02" sourceRef="uc_sendMainNumberValidationFailedMail" targetRef="uc_Sub_HT_CollectMainPSTNNumber" />
+    <bpmn:sequenceFlow id="Flow_17jo0zg" sourceRef="uc_Sub_UCMiddleWare_CreateAccount" targetRef="uc_Sub_Onboard_MainNumber" />
+    <bpmn:boundaryEvent id="Event_0sh4vpd" attachedToRef="validateMainNumber">
+      <bpmn:outgoing>Flow_1xsuozv</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_1qwsekl" errorRef="Error_1brr6jh" />
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_1xsuozv" sourceRef="Event_0sh4vpd" targetRef="uc_sendMainNumberValidationFailedMail" />
+    <bpmn:sequenceFlow id="Flow_0tj1jx1" sourceRef="Event_0i6zlen" targetRef="uc_Sub_HT_CorrectProblem" />
+    <bpmn:boundaryEvent id="Event_0i6zlen" attachedToRef="uc_Sub_UCMiddleWare_CreateAccount">
+      <bpmn:outgoing>Flow_0tj1jx1</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_0hpdt03" errorRef="Error_191q43i" />
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="uc_markMainNumberCollected" name="Mark Main Number Collected" camunda:type="external" camunda:topic="uc_markMainNumberCollected">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="pstnMainNumber">${pstnMainNumber}</camunda:inputParameter>
+          <camunda:inputParameter name="status">${status}</camunda:inputParameter>
+          <camunda:inputParameter name="flowId">${flowId}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1c60fma</bpmn:incoming>
+      <bpmn:outgoing>Flow_06vv7oe</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_06vv7oe" sourceRef="uc_markMainNumberCollected" targetRef="uc_Sub_Onboard_MainNumber" />
+    <bpmn:serviceTask id="prepareCollectMainPSTNNumberContextTask" name="Prepare Collect Main PSTN Number Context" camunda:type="external" camunda:topic="uc_prepareCollectMainPSTNNumberContextTask">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:outputParameter name="customerSiteNames">${customerSiteNames}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0scdpsa</bpmn:incoming>
+      <bpmn:outgoing>Flow_12wttsy</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_12wttsy" sourceRef="prepareCollectMainPSTNNumberContextTask" targetRef="uc_Sub_HT_CollectMainPSTNNumber" />
+  </bpmn:process>
+  <bpmn:error id="Error_1hh8dhu" name="provideNumbersPerSite" errorCode="provideNumbersPerSite" camunda:errorMessage="provideNumbersPerSite" />
+  <bpmn:category id="Category_1vnfxt4">
+    <bpmn:categoryValue id="CategoryValue_0zfo1fk" />
+  </bpmn:category>
+  <bpmn:error id="Error_0blyasd" name="Error_0tdd1q9" />
+  <bpmn:error id="Error_1brr6jh" name="validateMainNumberError" errorCode="validateMainNumberError" camunda:errorMessage="Main Number Validation Failed" />
+  <bpmn:error id="Error_191q43i" name="CreateAccountFailed" errorCode="CreateAccountFailed" camunda:errorMessage="Account creation failed at UCMiddleware side." />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="UCMainNumber_Add">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="155" y="72" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0iddvdr_di" bpmnElement="Event_0iddvdr">
+        <dc:Bounds x="1279" y="72" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0u1c34w_di" bpmnElement="uc_Sub_UCMiddleWare_CreateAccount">
+        <dc:Bounds x="706" y="50" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_08mesx8_di" bpmnElement="uc_Sub_HT_CollectMainPSTNNumber">
+        <dc:Bounds x="394" y="50" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0o7786i_di" bpmnElement="uc_Sub_Onboard_MainNumber">
+        <dc:Bounds x="1127" y="50" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1wnz5vr_di" bpmnElement="validateMainNumber">
+        <dc:Bounds x="550" y="50" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0l4hxo1_di" bpmnElement="updateUCCache">
+        <dc:Bounds x="394" y="290" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0y0lhgs_di" bpmnElement="uc_updateServiceOrderStatus">
+        <dc:Bounds x="976" y="193" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_02sp1zx_di" bpmnElement="uc_Sub_HT_CorrectProblem">
+        <dc:Bounds x="707" y="193" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0fs52fh_di" bpmnElement="Gateway_0fs52fh" isMarkerVisible="true">
+        <dc:Bounds x="853" y="208" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_146lzns_di" bpmnElement="uc_sendMainNumberValidationFailedMail">
+        <dc:Bounds x="550" y="193" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1kbs8jr_di" bpmnElement="uc_markMainNumberCollected">
+        <dc:Bounds x="1127" y="193" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0o04d2l_di" bpmnElement="prepareCollectMainPSTNNumberContextTask">
+        <dc:Bounds x="240" y="50" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1syiqn9_di" bpmnElement="Event_0i6zlen">
+        <dc:Bounds x="760" y="112" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1im3h1i_di" bpmnElement="Event_0sh4vpd">
+        <dc:Bounds x="600" y="112" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0scdpsa_di" bpmnElement="Flow_0scdpsa">
+        <di:waypoint x="191" y="90" />
+        <di:waypoint x="240" y="90" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ksemqq_di" bpmnElement="Flow_1ksemqq">
+        <di:waypoint x="1227" y="90" />
+        <di:waypoint x="1279" y="90" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1brrdpy_di" bpmnElement="Flow_1brrdpy">
+        <di:waypoint x="444" y="290" />
+        <di:waypoint x="444" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02lhivl_di" bpmnElement="Flow_02lhivl">
+        <di:waypoint x="494" y="90" />
+        <di:waypoint x="550" y="90" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16jcr0x_di" bpmnElement="Flow_16jcr0x">
+        <di:waypoint x="650" y="90" />
+        <di:waypoint x="706" y="90" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_02los57_di" bpmnElement="Flow_02los57">
+        <di:waypoint x="807" y="233" />
+        <di:waypoint x="853" y="233" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1h1q3hu_di" bpmnElement="Flow_1h1q3hu">
+        <di:waypoint x="878" y="258" />
+        <di:waypoint x="878" y="330" />
+        <di:waypoint x="494" y="330" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="651" y="336" width="56" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06as4xq_di" bpmnElement="Flow_06as4xq">
+        <di:waypoint x="903" y="233" />
+        <di:waypoint x="976" y="233" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="898" y="246" width="63" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1c60fma_di" bpmnElement="Flow_1c60fma">
+        <di:waypoint x="1076" y="233" />
+        <di:waypoint x="1127" y="233" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_131mr02_di" bpmnElement="Flow_131mr02">
+        <di:waypoint x="550" y="233" />
+        <di:waypoint x="444" y="233" />
+        <di:waypoint x="444" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17jo0zg_di" bpmnElement="Flow_17jo0zg">
+        <di:waypoint x="806" y="90" />
+        <di:waypoint x="1127" y="90" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1xsuozv_di" bpmnElement="Flow_1xsuozv">
+        <di:waypoint x="618" y="148" />
+        <di:waypoint x="618" y="193" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0tj1jx1_di" bpmnElement="Flow_0tj1jx1">
+        <di:waypoint x="778" y="148" />
+        <di:waypoint x="778" y="193" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06vv7oe_di" bpmnElement="Flow_06vv7oe">
+        <di:waypoint x="1177" y="190" />
+        <di:waypoint x="1177" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12wttsy_di" bpmnElement="Flow_12wttsy">
+        <di:waypoint x="340" y="90" />
+        <di:waypoint x="394" y="90" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

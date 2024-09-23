@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0ikpxb0" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.7.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="uc_Sub_OnboardPSTNNumbers" name="Sub Onboard PSTN Numbers" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0tbjjb6</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="uc_onboardNumbersToResourceInventory" name="Onboard numbers to Resource Inventory" camunda:type="external" camunda:topic="uc_onboardNumbersToResourceInventory">
+      <bpmn:incoming>Flow_0tbjjb6</bpmn:incoming>
+      <bpmn:outgoing>Flow_0en8kul</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="uc_createOrUpdateProductRealizingResources" name="Create or Update Product Realizing Resources" camunda:asyncBefore="true" camunda:type="external" camunda:topic="uc_createOrUpdateProductRealizingResources">
+      <bpmn:incoming>Flow_0en8kul</bpmn:incoming>
+      <bpmn:outgoing>Flow_1f0ny5m</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="uc_updateResourceStatesToAssigned" name="Update Resource State=Assigned" camunda:asyncBefore="true" camunda:type="external" camunda:topic="uc_updateResourceStatesToAssigned">
+      <bpmn:incoming>Flow_1f0ny5m</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ej26dj</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0en8kul" sourceRef="uc_onboardNumbersToResourceInventory" targetRef="uc_createOrUpdateProductRealizingResources" />
+    <bpmn:sequenceFlow id="Flow_1f0ny5m" sourceRef="uc_createOrUpdateProductRealizingResources" targetRef="uc_updateResourceStatesToAssigned" />
+    <bpmn:sequenceFlow id="Flow_0tbjjb6" sourceRef="StartEvent_1" targetRef="uc_onboardNumbersToResourceInventory" />
+    <bpmn:endEvent id="Event_0ncb2s5">
+      <bpmn:incoming>Flow_1ej26dj</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1ej26dj" sourceRef="uc_updateResourceStatesToAssigned" targetRef="Event_0ncb2s5" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="uc_Sub_OnboardPSTNNumbers">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="158" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0zbdg3k_di" bpmnElement="uc_onboardNumbersToResourceInventory">
+        <dc:Bounds x="260" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1sgjhkg_di" bpmnElement="uc_createOrUpdateProductRealizingResources">
+        <dc:Bounds x="400" y="77" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_12oi9w9_di" bpmnElement="uc_updateResourceStatesToAssigned">
+        <dc:Bounds x="550" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0ncb2s5_di" bpmnElement="Event_0ncb2s5">
+        <dc:Bounds x="702" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0en8kul_di" bpmnElement="Flow_0en8kul">
+        <di:waypoint x="360" y="117" />
+        <di:waypoint x="400" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1f0ny5m_di" bpmnElement="Flow_1f0ny5m">
+        <di:waypoint x="500" y="117" />
+        <di:waypoint x="550" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0tbjjb6_di" bpmnElement="Flow_0tbjjb6">
+        <di:waypoint x="194" y="117" />
+        <di:waypoint x="260" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ej26dj_di" bpmnElement="Flow_1ej26dj">
+        <di:waypoint x="650" y="117" />
+        <di:waypoint x="702" y="117" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

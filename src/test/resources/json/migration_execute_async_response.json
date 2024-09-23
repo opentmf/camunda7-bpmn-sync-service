@@ -1,0 +1,14 @@
+{
+  "id": "453848d1-95e5-11ee-96ea-0242ac18000d",
+  "type": "instance-migration",
+  "totalJobs": 1,
+  "jobsCreated": 0,
+  "batchJobsPerSeed": 100,
+  "invocationsPerBatchJob": 1,
+  "seedJobDefinitionId": "453848d2-95e5-11ee-96ea-0242ac18000d",
+  "monitorJobDefinitionId": "453848d3-95e5-11ee-96ea-0242ac18000d",
+  "batchJobDefinitionId": "453848d4-95e5-11ee-96ea-0242ac18000d",
+  "suspended": false,
+  "tenantId": null,
+  "createUserId": null
+}

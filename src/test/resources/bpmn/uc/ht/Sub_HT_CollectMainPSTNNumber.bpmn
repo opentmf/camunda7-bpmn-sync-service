@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0xgfxyx" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="uc_Sub_HT_CollectMainPSTNNumber" name="Sub HT Collect Main PSTN Number" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0jmpaqu</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="CollectPSTNNumbers_Form" name="${taskUserName}" camunda:candidateGroups="${candidateGroups}" camunda:dueDate="${dueDate}" camunda:priority="${userTaskPriority}">
+      <bpmn:documentation>${taskDescriptionObject}</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="pstnMainNumber" label="Main PSTN Number" type="string">
+            <camunda:properties>
+              <camunda:property id="relatedProductOfferingID" value="UCMainNumberOffering" />
+              <camunda:property id="relatedSalesQuantity" value="0" />
+              <camunda:property id="relatedDataType" value="string" />
+              <camunda:property id="characteristicName" value="mainNumber" />
+            </camunda:properties>
+            <camunda:validation>
+              <camunda:constraint name="required" config="true" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="siteName" label="Customer Site Name" type="string">
+            <camunda:properties>
+              <camunda:property id="relatedProductOfferingID" value="UCMainNumberOffering" />
+              <camunda:property id="relatedSalesQuantity" value="0" />
+              <camunda:property id="relatedDataType" value="string" />
+              <camunda:property id="characteristicName" value="siteName" />
+            </camunda:properties>
+            <camunda:validation>
+              <camunda:constraint name="required" config="true" />
+            </camunda:validation>
+          </camunda:formField>
+          <camunda:formField id="numberType" label="Number Type" type="enum">
+            <camunda:properties>
+              <camunda:property id="relatedProductOfferingID" value="UCMainNumberOffering" />
+              <camunda:property id="relatedSalesQuantity" value="0" />
+              <camunda:property id="relatedDataType" value="string" />
+              <camunda:property id="characteristicName" value="numberType" />
+            </camunda:properties>
+            <camunda:validation>
+              <camunda:constraint name="required" config="true" />
+            </camunda:validation>
+            <camunda:value id="PSTNGeoNumberOffering" name="Geo" />
+            <camunda:value id="PSTNNonGeoNumberOffering" name="Non-Geo" />
+            <camunda:value id="PSTNNomadicNumberOffering" name="Nomadic" />
+          </camunda:formField>
+        </camunda:formData>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="notificationType">${notificationType}</camunda:inputParameter>
+          <camunda:inputParameter name="taskDelayReason">${taskDelayReason}</camunda:inputParameter>
+          <camunda:inputParameter name="taskDelayed">${taskDelayed}</camunda:inputParameter>
+          <camunda:outputParameter name="taskDelayReason">${taskDelayReason}</camunda:outputParameter>
+          <camunda:outputParameter name="taskDelayed">${taskDelayed}</camunda:outputParameter>
+          <camunda:outputParameter name="pstnMainNumber">${pstnMainNumber}</camunda:outputParameter>
+          <camunda:outputParameter name="siteName">${siteName}</camunda:outputParameter>
+          <camunda:outputParameter name="numberType">${numberType}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_167rb47</bpmn:incoming>
+      <bpmn:outgoing>Flow_09mcxhr</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_167rb47" sourceRef="setUserTaskStarted" targetRef="CollectPSTNNumbers_Form" />
+    <bpmn:sequenceFlow id="Flow_09mcxhr" sourceRef="CollectPSTNNumbers_Form" targetRef="setUserTaskCompleted" />
+    <bpmn:scriptTask id="setUserTaskCompleted" name="Set User Task Completed" scriptFormat="Javascript">
+      <bpmn:incoming>Flow_09mcxhr</bpmn:incoming>
+      <bpmn:outgoing>Flow_0kjw5kv</bpmn:outgoing>
+      <bpmn:script>execution.setVariable("userTaskCompleted", true);
+execution.setVariable("notificationType", "");</bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:boundaryEvent id="Event_1qnrft8" cancelActivity="false" attachedToRef="CollectPSTNNumbers_Form">
+      <bpmn:outgoing>Flow_1yqtz98</bpmn:outgoing>
+      <bpmn:conditionalEventDefinition id="ConditionalEventDefinition_14wwxxi" camunda:variableName="userTaskStarted">
+        <bpmn:condition xsi:type="bpmn:tFormalExpression">${not userTaskCompleted}</bpmn:condition>
+      </bpmn:conditionalEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:callActivity id="sendEmailForReminderAndEscalation" name="Send Email For Reminder And Escalation" calledElement="Process_Send_Email_For_Reminder_And_Escalation">
+      <bpmn:extensionElements>
+        <camunda:in source="processSubStep" target="processSubStep" />
+        <camunda:in source="processStep" target="processStep" />
+        <camunda:in source="notificationType" target="notificationType" />
+        <camunda:in source="taskDescription" target="taskDescription" />
+        <camunda:in source="productOrderID" target="productOrderID" />
+        <camunda:in source="userTaskCompleted" target="userTaskCompleted" />
+        <camunda:in sourceExpression="${execution.getProcessInstanceId()}" target="processInstanceId" />
+        <camunda:in source="timeoutDuration" target="timeoutDuration" />
+        <camunda:out variables="all" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1yqtz98</bpmn:incoming>
+      <bpmn:outgoing>Flow_1jusmte</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_1yqtz98" sourceRef="Event_1qnrft8" targetRef="sendEmailForReminderAndEscalation" />
+    <bpmn:endEvent id="Event_0k5n3cy">
+      <bpmn:incoming>Flow_0kjw5kv</bpmn:incoming>
+      <bpmn:terminateEventDefinition id="TerminateEventDefinition_0b7bi08" />
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="setUserTaskStarted" name="Set User Task Started" camunda:asyncBefore="true" camunda:type="external" camunda:topic="getTaskProperties">
+      <bpmn:incoming>Flow_13ysu49</bpmn:incoming>
+      <bpmn:outgoing>Flow_167rb47</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Event_1i78hgs">
+      <bpmn:incoming>Flow_1jusmte</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1jusmte" sourceRef="sendEmailForReminderAndEscalation" targetRef="Event_1i78hgs" />
+    <bpmn:sequenceFlow id="Flow_0jmpaqu" sourceRef="StartEvent_1" targetRef="Activity_19fmb2c" />
+    <bpmn:sequenceFlow id="Flow_0kjw5kv" sourceRef="setUserTaskCompleted" targetRef="Event_0k5n3cy" />
+    <bpmn:serviceTask id="Activity_19fmb2c" name="Send Email" camunda:asyncBefore="true" camunda:type="external" camunda:topic="sendEmail">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="productOrderID">${productOrderID}</camunda:inputParameter>
+          <camunda:inputParameter name="taskDescription">${taskDescription}</camunda:inputParameter>
+          <camunda:inputParameter name="notificationType">${notificationType}</camunda:inputParameter>
+          <camunda:inputParameter name="processStep">${processStep}</camunda:inputParameter>
+          <camunda:inputParameter name="processSubStep">${processSubStep}</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0jmpaqu</bpmn:incoming>
+      <bpmn:outgoing>Flow_13ysu49</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_13ysu49" sourceRef="Activity_19fmb2c" targetRef="setUserTaskStarted" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="uc_Sub_HT_CollectMainPSTNNumber">
+      <bpmndi:BPMNEdge id="Flow_0kjw5kv_di" bpmnElement="Flow_0kjw5kv">
+        <di:waypoint x="801" y="125" />
+        <di:waypoint x="853" y="125" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0jmpaqu_di" bpmnElement="Flow_0jmpaqu">
+        <di:waypoint x="188" y="125" />
+        <di:waypoint x="230" y="125" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1jusmte_di" bpmnElement="Flow_1jusmte">
+        <di:waypoint x="644" y="273" />
+        <di:waypoint x="693" y="273" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1yqtz98_di" bpmnElement="Flow_1yqtz98">
+        <di:waypoint x="594" y="194" />
+        <di:waypoint x="594" y="233" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09mcxhr_di" bpmnElement="Flow_09mcxhr">
+        <di:waypoint x="644" y="125" />
+        <di:waypoint x="701" y="125" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_167rb47_di" bpmnElement="Flow_167rb47">
+        <di:waypoint x="491" y="125" />
+        <di:waypoint x="544" y="125" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13ysu49_di" bpmnElement="Flow_13ysu49">
+        <di:waypoint x="330" y="125" />
+        <di:waypoint x="391" y="125" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="107" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_15cce9i_di" bpmnElement="CollectPSTNNumbers_Form">
+        <dc:Bounds x="544" y="85" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0t2xyn9_di" bpmnElement="setUserTaskCompleted">
+        <dc:Bounds x="701" y="85" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_17fwuku_di" bpmnElement="sendEmailForReminderAndEscalation">
+        <dc:Bounds x="544" y="233" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1t20gib_di" bpmnElement="Event_0k5n3cy">
+        <dc:Bounds x="853" y="107" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_06djc73_di" bpmnElement="setUserTaskStarted">
+        <dc:Bounds x="391" y="85" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1i78hgs_di" bpmnElement="Event_1i78hgs">
+        <dc:Bounds x="693" y="255" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_19fmb2c_di" bpmnElement="Activity_19fmb2c">
+        <dc:Bounds x="230" y="85" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_02lf4t0_di" bpmnElement="Event_1qnrft8">
+        <dc:Bounds x="576" y="158" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

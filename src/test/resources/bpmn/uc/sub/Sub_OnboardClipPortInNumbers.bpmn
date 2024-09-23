@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0ikpxb0" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.7.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="uc_Sub_OnboardClipPortInNumbers" name="Sub Onboard Clip PortIn Numbers" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0tbjjb6</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="uc_onboardNumbersToResourceInventory" name="Onboard numbers to Resource Inventory" camunda:type="external" camunda:topic="uc_onboardNumbersToResourceInventory">
+      <bpmn:incoming>Flow_0tbjjb6</bpmn:incoming>
+      <bpmn:outgoing>Flow_1aww176</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="uc_createOrUpdateAddOnProduct" name="Create or Update AddOn Product" camunda:asyncBefore="true" camunda:type="external" camunda:topic="uc_createOrUpdateAddOnProduct">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:outputParameter name="productID">${productID}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1aww176</bpmn:incoming>
+      <bpmn:outgoing>Flow_0j7mgy9</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="uc_updateResourceStatesToAssigned" name="Update Resource State=Assigned" camunda:asyncBefore="true" camunda:type="external" camunda:topic="uc_updateResourceStatesToAssigned">
+      <bpmn:incoming>Flow_0xjacya</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ej26dj</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0tbjjb6" sourceRef="StartEvent_1" targetRef="uc_onboardNumbersToResourceInventory" />
+    <bpmn:endEvent id="Event_0ncb2s5">
+      <bpmn:incoming>Flow_1ej26dj</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1ej26dj" sourceRef="uc_updateResourceStatesToAssigned" targetRef="Event_0ncb2s5" />
+    <bpmn:serviceTask id="uc_updateDependentProductRealizingResources" name="Update Dependent Product Realizing Resources" camunda:type="external" camunda:topic="uc_updateDependentProductRealizingResources">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="productID">${productID}</camunda:inputParameter>
+          <camunda:outputParameter name="productID">${productID}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0j7mgy9</bpmn:incoming>
+      <bpmn:outgoing>Flow_0xjacya</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0j7mgy9" sourceRef="uc_createOrUpdateAddOnProduct" targetRef="uc_updateDependentProductRealizingResources" />
+    <bpmn:sequenceFlow id="Flow_1aww176" sourceRef="uc_onboardNumbersToResourceInventory" targetRef="uc_createOrUpdateAddOnProduct" />
+    <bpmn:sequenceFlow id="Flow_0xjacya" sourceRef="uc_updateDependentProductRealizingResources" targetRef="uc_updateResourceStatesToAssigned" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="uc_Sub_OnboardClipPortInNumbers">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="158" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0zbdg3k_di" bpmnElement="uc_onboardNumbersToResourceInventory">
+        <dc:Bounds x="260" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1sgjhkg_di" bpmnElement="uc_createOrUpdateAddOnProduct">
+        <dc:Bounds x="400" y="77" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_12oi9w9_di" bpmnElement="uc_updateResourceStatesToAssigned">
+        <dc:Bounds x="682" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0ncb2s5_di" bpmnElement="Event_0ncb2s5">
+        <dc:Bounds x="834" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0a0lf97_di" bpmnElement="uc_updateDependentProductRealizingResources">
+        <dc:Bounds x="540" y="77" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0tbjjb6_di" bpmnElement="Flow_0tbjjb6">
+        <di:waypoint x="194" y="117" />
+        <di:waypoint x="260" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ej26dj_di" bpmnElement="Flow_1ej26dj">
+        <di:waypoint x="782" y="117" />
+        <di:waypoint x="834" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0j7mgy9_di" bpmnElement="Flow_0j7mgy9">
+        <di:waypoint x="500" y="117" />
+        <di:waypoint x="540" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1aww176_di" bpmnElement="Flow_1aww176">
+        <di:waypoint x="360" y="117" />
+        <di:waypoint x="400" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0xjacya_di" bpmnElement="Flow_0xjacya">
+        <di:waypoint x="640" y="117" />
+        <di:waypoint x="682" y="117" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

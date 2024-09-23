@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0346b5i" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.7.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.18.0">
+  <bpmn:process id="VBUCBackEndCompletion" name="VBUC Backend Completion" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0ilftlh</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="Event_1w5kszt">
+      <bpmn:incoming>Flow_1klc3wz</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:callActivity id="uc_Sub_HT_UCOrderCompletion" name="HT UC Order Completion" calledElement="uc_Sub_HT_UCOrderCompletion">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="notificationType">starter</camunda:inputParameter>
+          <camunda:inputParameter name="processStep">UC Unity Order</camunda:inputParameter>
+          <camunda:inputParameter name="processSubStep">- Acknowledge Order Completion</camunda:inputParameter>
+          <camunda:inputParameter name="taskDescription">UC Unity Product Order with id=${productOrderID} completed successfully. Ring Central User Id = ${rcUid}</camunda:inputParameter>
+          <camunda:inputParameter name="productOrderName">VBUC Order Completion</camunda:inputParameter>
+        </camunda:inputOutput>
+        <camunda:in variables="all" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_009optv</bpmn:incoming>
+      <bpmn:outgoing>Flow_0akzo6q</bpmn:outgoing>
+    </bpmn:callActivity>
+    <bpmn:sequenceFlow id="Flow_0ilftlh" sourceRef="StartEvent_1" targetRef="Activity_setRcUidVariableFromMainProduct" />
+    <bpmn:sequenceFlow id="Flow_0akzo6q" sourceRef="uc_Sub_HT_UCOrderCompletion" targetRef="uc_sendUcOrderCompletedMail" />
+    <bpmn:serviceTask id="uc_sendUcOrderCompletedMail" name="Send UC Order Completed Mail" camunda:type="external" camunda:topic="uc_prepareAndSendEmail">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="emailTemplateName">UcOrderCompleted</camunda:inputParameter>
+          <camunda:inputParameter name="emailTo" />
+          <camunda:inputParameter name="emailCc" />
+          <camunda:inputParameter name="emailSubject">UC Order Completed (orderId=${productOrderID})</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0akzo6q</bpmn:incoming>
+      <bpmn:outgoing>Flow_156m7zd</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_156m7zd" sourceRef="uc_sendUcOrderCompletedMail" targetRef="uc_markOrderCompleted" />
+    <bpmn:sequenceFlow id="Flow_1klc3wz" sourceRef="uc_markOrderCompleted" targetRef="Event_1w5kszt" />
+    <bpmn:serviceTask id="uc_markOrderCompleted" name="Mark Order Completed" camunda:type="external" camunda:topic="uc_markOrderCompleted">
+      <bpmn:incoming>Flow_156m7zd</bpmn:incoming>
+      <bpmn:outgoing>Flow_1klc3wz</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_setRcUidVariableFromMainProduct" name="Set RcUid Variable From Main Product" camunda:type="external" camunda:topic="uc_setRcUIdVariableFromMainProduct">
+      <bpmn:extensionElements />
+      <bpmn:incoming>Flow_0ilftlh</bpmn:incoming>
+      <bpmn:outgoing>Flow_009optv</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_009optv" sourceRef="Activity_setRcUidVariableFromMainProduct" targetRef="uc_Sub_HT_UCOrderCompletion" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="VBUCBackEndCompletion">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="102" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1w5kszt_di" bpmnElement="Event_1w5kszt">
+        <dc:Bounds x="918" y="99" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1wzstw5_di" bpmnElement="uc_Sub_HT_UCOrderCompletion">
+        <dc:Bounds x="420" y="77" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="prepareAndSendEmail_di" bpmnElement="uc_sendUcOrderCompletedMail">
+        <dc:Bounds x="593" y="77" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0sf02wf_di" bpmnElement="uc_markOrderCompleted">
+        <dc:Bounds x="762" y="77" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0eoljny" bpmnElement="Activity_setRcUidVariableFromMainProduct">
+        <dc:Bounds x="260" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0ilftlh_di" bpmnElement="Flow_0ilftlh">
+        <di:waypoint x="188" y="120" />
+        <di:waypoint x="260" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0akzo6q_di" bpmnElement="Flow_0akzo6q">
+        <di:waypoint x="520" y="117" />
+        <di:waypoint x="593" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_156m7zd_di" bpmnElement="Flow_156m7zd">
+        <di:waypoint x="693" y="117" />
+        <di:waypoint x="762" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1klc3wz_di" bpmnElement="Flow_1klc3wz">
+        <di:waypoint x="862" y="117" />
+        <di:waypoint x="918" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_009optv_di" bpmnElement="Flow_009optv">
+        <di:waypoint x="360" y="120" />
+        <di:waypoint x="420" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,114 @@
+{
+  "sourceProcessDefinitionId": "UCMainNumber_Add:2:f113c4a4-904d-11ee-aaa3-0242ac1a000d",
+  "targetProcessDefinitionId": "UCMainNumber_Add:3:65e47218-9290-11ee-9c88-0242ac12000a",
+  "instructions": [
+    {
+      "sourceActivityIds": [
+        "uc_Sub_HT_CollectMainPSTNNumber"
+      ],
+      "targetActivityIds": [
+        "uc_Sub_HT_CollectMainPSTNNumber"
+      ],
+      "updateEventTrigger": false
+    },
+    {
+      "sourceActivityIds": [
+        "uc_Sub_UCMiddleWare_CreateAccount"
+      ],
+      "targetActivityIds": [
+        "uc_Sub_UCMiddleWare_CreateAccount"
+      ],
+      "updateEventTrigger": false
+    },
+    {
+      "sourceActivityIds": [
+        "uc_Sub_HT_CorrectProblem"
+      ],
+      "targetActivityIds": [
+        "uc_Sub_HT_CorrectProblem"
+      ],
+      "updateEventTrigger": false
+    },
+    {
+      "sourceActivityIds": [
+        "prepareCollectMainPSTNNumberContextTask"
+      ],
+      "targetActivityIds": [
+        "prepareCollectMainPSTNNumberContextTask"
+      ],
+      "updateEventTrigger": false
+    },
+    {
+      "sourceActivityIds": [
+        "uc_Sub_Onboard_MainNumber"
+      ],
+      "targetActivityIds": [
+        "uc_Sub_Onboard_MainNumber"
+      ],
+      "updateEventTrigger": false
+    },
+    {
+      "sourceActivityIds": [
+        "uc_sendMainNumberValidationFailedMail"
+      ],
+      "targetActivityIds": [
+        "uc_sendMainNumberValidationFailedMail"
+      ],
+      "updateEventTrigger": false
+    },
+    {
+      "sourceActivityIds": [
+        "validateMainNumber"
+      ],
+      "targetActivityIds": [
+        "validateMainNumber"
+      ],
+      "updateEventTrigger": false
+    },
+    {
+      "sourceActivityIds": [
+        "uc_updateServiceOrderStatus"
+      ],
+      "targetActivityIds": [
+        "uc_updateServiceOrderStatus"
+      ],
+      "updateEventTrigger": false
+    },
+    {
+      "sourceActivityIds": [
+        "updateUCCache"
+      ],
+      "targetActivityIds": [
+        "updateUCCache"
+      ],
+      "updateEventTrigger": false
+    },
+    {
+      "sourceActivityIds": [
+        "uc_markMainNumberCollected"
+      ],
+      "targetActivityIds": [
+        "uc_markMainNumberCollected"
+      ],
+      "updateEventTrigger": false
+    }
+  ],
+  "variables": {
+    "var_1": {
+      "type": "Object",
+      "value": "[5,6]",
+      "valueInfo": {
+        "objectTypeName": "java.util.ArrayList",
+        "serializationDataFormat": "application/json"
+      }
+    },
+    "var_2": {
+      "type": "Boolean",
+      "value": "true",
+      "valueInfo": {
+        "objectTypeName": "java.lang.Boolean",
+        "serializationDataFormat": "native"
+      }
+    }
+  }
+}

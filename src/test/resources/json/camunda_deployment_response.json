@@ -1,0 +1,195 @@
+{
+  "id": "00cfe39e-96c2-11ee-917f-42bebad1fd12",
+  "name": "TestBpmnSync",
+  "source": "BPMN Sync Service",
+  "deploymentTime": "2023-12-09T18:37:27.642Z",
+  "deployedProcessDefinitions": {
+    "01150320-96c2-11ee-917f-42bebad1fd12": {
+      "id": "01150320-96c2-11ee-917f-42bebad1fd12",
+      "key": "uc_Sub_UCMiddleWare_CreateAccount",
+      "category": "http://bpmn.io/schema/bpmn",
+      "name": "Sub UCMiddleWare Create Account",
+      "version": 1,
+      "resource": "Sub_UCMiddleWare_CreateAccount.bpmn",
+      "deploymentId": "00cfe39e-96c2-11ee-917f-42bebad1fd12",
+      "suspended": false,
+      "startableInTasklist": true
+    },
+    "01152a35-96c2-11ee-917f-42bebad1fd12": {
+      "id": "01152a35-96c2-11ee-917f-42bebad1fd12",
+      "key": "uc_Sub_HT_CollectMainPSTNNumber",
+      "category": "http://bpmn.io/schema/bpmn",
+      "name": "Sub HT Collect Main PSTN Number",
+      "version": 1,
+      "resource": "Sub_HT_CollectMainPSTNNumber.bpmn",
+      "deploymentId": "00cfe39e-96c2-11ee-917f-42bebad1fd12",
+      "suspended": false,
+      "startableInTasklist": true
+    },
+    "0115c67e-96c2-11ee-917f-42bebad1fd12": {
+      "id": "0115c67e-96c2-11ee-917f-42bebad1fd12",
+      "key": "uc_Sub_HT_CollectPSTNNumbers",
+      "category": "http://bpmn.io/schema/bpmn",
+      "name": "Sub HT Collect PSTN Numbers",
+      "version": 1,
+      "resource": "Sub_HT_CollectPSTNNumbers.bpmn",
+      "deploymentId": "00cfe39e-96c2-11ee-917f-42bebad1fd12",
+      "suspended": false,
+      "startableInTasklist": true
+    },
+    "01132e4d-96c2-11ee-917f-42bebad1fd12": {
+      "id": "01132e4d-96c2-11ee-917f-42bebad1fd12",
+      "key": "uc_Sub_OnboardClipPortInNumbers",
+      "category": "http://bpmn.io/schema/bpmn",
+      "name": "Sub Onboard Clip PortIn Numbers",
+      "version": 1,
+      "resource": "Sub_OnboardClipPortInNumbers.bpmn",
+      "deploymentId": "00cfe39e-96c2-11ee-917f-42bebad1fd12",
+      "suspended": false,
+      "startableInTasklist": true
+    },
+    "UCMainNumber_Add:1:0115ed91-96c2-11ee-917f-42bebad1fd12": {
+      "id": "UCMainNumber_Add:1:0115ed91-96c2-11ee-917f-42bebad1fd12",
+      "key": "UCMainNumber_Add",
+      "category": "http://bpmn.io/schema/bpmn",
+      "name": "UC MainNumber Add",
+      "version": 1,
+      "resource": "UCMainNumber_Add.bpmn",
+      "deploymentId": "00cfe39e-96c2-11ee-917f-42bebad1fd12",
+      "suspended": false,
+      "startableInTasklist": true
+    },
+    "UCCLIPPortInNumber_Add:1:01163bb3-96c2-11ee-917f-42bebad1fd12": {
+      "id": "UCCLIPPortInNumber_Add:1:01163bb3-96c2-11ee-917f-42bebad1fd12",
+      "key": "UCCLIPPortInNumber_Add",
+      "category": "http://bpmn.io/schema/bpmn",
+      "name": "UC Clip PortIn Number Add",
+      "version": 1,
+      "resource": "UCCLIPPortInNumber_Add.bpmn",
+      "deploymentId": "00cfe39e-96c2-11ee-917f-42bebad1fd12",
+      "suspended": false,
+      "startableInTasklist": true
+    },
+    "011418b3-96c2-11ee-917f-42bebad1fd12": {
+      "id": "011418b3-96c2-11ee-917f-42bebad1fd12",
+      "key": "uc_Sub_UCMiddleWare_AddLicense",
+      "category": "http://bpmn.io/schema/bpmn",
+      "name": "Sub UCMiddleware Add License",
+      "version": 1,
+      "resource": "Sub_UCMiddleWare_AddLicense.bpmn",
+      "deploymentId": "00cfe39e-96c2-11ee-917f-42bebad1fd12",
+      "suspended": false,
+      "startableInTasklist": true
+    },
+    "UCNumber_Add:1:0111f5c9-96c2-11ee-917f-42bebad1fd12": {
+      "id": "UCNumber_Add:1:0111f5c9-96c2-11ee-917f-42bebad1fd12",
+      "key": "UCNumber_Add",
+      "category": "http://bpmn.io/schema/bpmn",
+      "name": "UC Number Add",
+      "version": 1,
+      "resource": "UCNumber_Add.bpmn",
+      "deploymentId": "00cfe39e-96c2-11ee-917f-42bebad1fd12",
+      "suspended": false,
+      "startableInTasklist": true
+    },
+    "011466d8-96c2-11ee-917f-42bebad1fd12": {
+      "id": "011466d8-96c2-11ee-917f-42bebad1fd12",
+      "key": "uc_Sub_HT_UCOrderCompletion",
+      "category": "http://bpmn.io/schema/bpmn",
+      "name": "Sub HT UC Order Completion",
+      "version": 1,
+      "resource": "Sub_HT_UCOrderCompletion.bpmn",
+      "deploymentId": "00cfe39e-96c2-11ee-917f-42bebad1fd12",
+      "suspended": false,
+      "startableInTasklist": true
+    },
+    "VBUCBackEndCompletion:1:01109635-96c2-11ee-917f-42bebad1fd12": {
+      "id": "VBUCBackEndCompletion:1:01109635-96c2-11ee-917f-42bebad1fd12",
+      "key": "VBUCBackEndCompletion",
+      "category": "http://bpmn.io/schema/bpmn",
+      "name": "VBUC Backend Completion",
+      "version": 1,
+      "resource": "VBUCBackEndCompletion.bpmn",
+      "deploymentId": "00cfe39e-96c2-11ee-917f-42bebad1fd12",
+      "suspended": false,
+      "startableInTasklist": true
+    },
+    "UCLicense_Modify:1:0114b4fb-96c2-11ee-917f-42bebad1fd12": {
+      "id": "UCLicense_Modify:1:0114b4fb-96c2-11ee-917f-42bebad1fd12",
+      "key": "UCLicense_Modify",
+      "category": "http://bpmn.io/schema/bpmn",
+      "name": "UC License Modify",
+      "version": 1,
+      "resource": "UCLicense_Modify.bpmn",
+      "deploymentId": "00cfe39e-96c2-11ee-917f-42bebad1fd12",
+      "suspended": false,
+      "startableInTasklist": true
+    },
+    "uc_Sub_HT_CorrectProblem:1:0113a380-96c2-11ee-917f-42bebad1fd12": {
+      "id": "uc_Sub_HT_CorrectProblem:1:0113a380-96c2-11ee-917f-42bebad1fd12",
+      "key": "uc_Sub_HT_CorrectProblem",
+      "category": "http://bpmn.io/schema/bpmn",
+      "name": "Sub HT Correct Problem",
+      "version": 1,
+      "resource": "Sub_HT_CorrectProblem.bpmn",
+      "deploymentId": "00cfe39e-96c2-11ee-917f-42bebad1fd12",
+      "suspended": false,
+      "startableInTasklist": true
+    },
+    "uc_Sub_OnboardPSTNNumbers:1:01159f6b-96c2-11ee-917f-42bebad1fd12": {
+      "id": "uc_Sub_OnboardPSTNNumbers:1:01159f6b-96c2-11ee-917f-42bebad1fd12",
+      "key": "uc_Sub_OnboardPSTNNumbers",
+      "category": "http://bpmn.io/schema/bpmn",
+      "name": "Sub Onboard PSTN Numbers",
+      "version": 1,
+      "resource": "Sub_OnboardPstnNumbers.bpmn",
+      "deploymentId": "00cfe39e-96c2-11ee-917f-42bebad1fd12",
+      "suspended": false,
+      "startableInTasklist": true
+    },
+    "uc_Sub_Onboard_MainNumber:1:01157858-96c2-11ee-917f-42bebad1fd12": {
+      "id": "uc_Sub_Onboard_MainNumber:1:01157858-96c2-11ee-917f-42bebad1fd12",
+      "key": "uc_Sub_Onboard_MainNumber",
+      "category": "http://bpmn.io/schema/bpmn",
+      "name": "Sub Onboard Main Number",
+      "version": 1,
+      "resource": "Sub_OnboardMainNumber.bpmn",
+      "deploymentId": "00cfe39e-96c2-11ee-917f-42bebad1fd12",
+      "suspended": false,
+      "startableInTasklist": true
+    },
+    "010f84c0-96c2-11ee-917f-42bebad1fd12": {
+      "id": "010f84c0-96c2-11ee-917f-42bebad1fd12",
+      "key": "uc_Sub_UCMiddleWare_AddNumbers",
+      "category": "http://bpmn.io/schema/bpmn",
+      "name": "Sub UCMiddleware Add Numbers",
+      "version": 1,
+      "resource": "Sub_UCMiddleWare_AddNumbers.bpmn",
+      "deploymentId": "00cfe39e-96c2-11ee-917f-42bebad1fd12",
+      "suspended": false,
+      "startableInTasklist": true
+    },
+    "01113276-96c2-11ee-917f-42bebad1fd12": {
+      "id": "01113276-96c2-11ee-917f-42bebad1fd12",
+      "key": "uc_Sub_HT_SetStatusManually",
+      "category": "http://bpmn.io/schema/bpmn",
+      "name": "Sub HT Set Status Manually",
+      "version": 1,
+      "resource": "Sub_HT_SetStatusManually.bpmn",
+      "deploymentId": "00cfe39e-96c2-11ee-917f-42bebad1fd12",
+      "suspended": false,
+      "startableInTasklist": true
+    },
+    "UCLicense_Add:1:0112b91c-96c2-11ee-917f-42bebad1fd12": {
+      "id": "UCLicense_Add:1:0112b91c-96c2-11ee-917f-42bebad1fd12",
+      "key": "UCLicense_Add",
+      "category": "http://bpmn.io/schema/bpmn",
+      "name": "UC License Add",
+      "version": 1,
+      "resource": "UCLicense_Add.bpmn",
+      "deploymentId": "00cfe39e-96c2-11ee-917f-42bebad1fd12",
+      "suspended": false,
+      "startableInTasklist": true
+    }
+  }
+}
