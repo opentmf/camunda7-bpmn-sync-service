@@ -57,20 +57,22 @@ public class BpmnSyncProperties {
   private boolean autoMigrate = false;
 
   /**
-   * The qualifier name of the webClient bean to use.
+   * The client id to use. This id is the prefix to the following exposed beans:
+   * <ul>
+   *   <li>webClient</li>
+   *   <li>tokenService</li>
+   *   <li>clientProperties</li>
+   * </ul>
+   * <p>
+   *   For example, if the client value is <strong>sample</strong> then we will assume the
+   *   following three beans are exposed:
+   *   <ul>
+   *     <li>(WebClient) sampleWebClient</li>
+   *     <li>(TokenService) sampleTokenService</li>
+   *     <li>(BaseClientProperties) sampleClientProperties</li>
+   *   </ul>
+   * </p>
    */
   @NotEmpty
-  private String webClient;
-
-  /**
-   * The qualifier name of the tokenService bean to use.
-   */
-  @NotEmpty
-  private String tokenService;
-
-  /**
-   * The client configuration bean.
-   */
-  @NotEmpty
-  private String clientConfiguration;
+  private String client;
 }

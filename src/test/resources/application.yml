@@ -23,9 +23,7 @@ pia:
     lock-hold-timeout: 60000
 
   bpmn-sync:
-    token-service: openidTokenService
-    web-client: openidWebClient
-    client-configuration: openidClientProperties
+    client: openid
 
   webclient:
     openid:

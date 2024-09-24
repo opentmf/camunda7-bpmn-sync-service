@@ -34,7 +34,7 @@ Add this section:
   <dependency>
     <groupId>com.pia.commons</groupId>
     <artifactId>pia-bpmn-sync-service</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
   </dependency>
 ```
 ### 2. Reorganize the BPMN files
@@ -51,16 +51,14 @@ pia:
     deployment-name: UC-SOA
     bpmn-version: 1.0
     auto-migrate: true
-    token-service: openidTokenService
-    web-client: openidWebClient
-    client-configuration: openidClientProperties
+    client: default
 ```
 
-**token-service:** The TokenService bean qualifier name, that should be exposed by your microservice.
+**client:** The client id to use. This id is the prefix to the following exposed beans:
 
-**web-client:** The WebClient bean qualifier name, that should be exposed by your microservice.
-
-**client-configuration:** The client configuration bean qualifier name, that should be exposed by your microservice. 
+1. webClient
+2. tokenService
+3. clientProperties
 
 The BPMN Sync Service remembers the latest deployed BPMN versions. If the specified bpmnVersion is already the latest deployed version, then no synchronization will take place. Therefore, it is the developers' responsibility to increase the bpmn-version when any of the BPMN files changes, to enforce the BPMN synchronization.
 
@@ -210,3 +208,5 @@ RETURNING *
 ## Version History
 ### 1.0.0
 - Initial Release
+### 1.0.1
+- Simplifies configuration properties
