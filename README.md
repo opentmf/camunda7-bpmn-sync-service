@@ -28,13 +28,26 @@ The result of the auto-migration can be checked using Camunda Cockpit.
 ## Using the Service
 To use this service from a microservice, the following six small steps are necessary:
 
-### 1. pom.xml Addition
-Add this section:
+### 1. pom.xml Additions
+Import pia-commons-library dependencies
+```xml
+<dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>com.pia.commons</groupId>
+      <artifactId>pia-commons-versions</artifactId>
+      <version>LATEST</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+  </dependencies>
+</dependencyManagement>
+```
+Depend on the latest version of pia-bpmn-sync-service: 
 ```xml
   <dependency>
     <groupId>com.pia.commons</groupId>
     <artifactId>pia-bpmn-sync-service</artifactId>
-    <version>1.0.1</version>
   </dependency>
 ```
 ### 2. Reorganize the BPMN files
@@ -210,3 +223,5 @@ RETURNING *
 - Initial Release
 ### 1.0.1
 - Simplifies configuration properties
+### 1.0.2
+- Updates dependency versions of pia-web-clients and pia-db-lock-service to their latest.

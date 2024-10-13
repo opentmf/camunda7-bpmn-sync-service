@@ -44,8 +44,8 @@ public class CamundaClientImpl implements CamundaClient {
 
   private final WebClient webClient;
   private final TokenService tokenService;
+  private final BaseClientProperties clientProperties;
   private final CamundaProperties camundaProperties;
-  private final BaseClientProperties<?> openidClientProperties;
 
   @Override
   public Mono<ProcessDefinition> getProcessDefinition(String key, int version) {
@@ -86,8 +86,8 @@ public class CamundaClientImpl implements CamundaClient {
             .body(BodyInserters.fromMultipartData(getMultipartRequest(deploymentName, bpmnFiles)))
             .retrieve().onStatus(HttpStatusCode::isError, CamundaClientImpl::handleError)
             .bodyToMono(CamundaDeploymentResponse.class)
-            .retryWhen(retry(openidClientProperties.getNumRetries(),
-                Duration.ofMillis(openidClientProperties.getRetryWaitMillis()), 0)));
+            .retryWhen(retry(clientProperties.getNumRetries(),
+                Duration.ofMillis(clientProperties.getRetryWaitMillis()), 0)));
   }
 
   private String getAuth(String token) {
@@ -142,8 +142,8 @@ public class CamundaClientImpl implements CamundaClient {
         .retrieve()
         .onStatus(HttpStatusCode::isError, CamundaClientImpl::handleError)
         .bodyToFlux(t)
-        .retryWhen(retry(openidClientProperties.getNumRetries(),
-            Duration.ofMillis(openidClientProperties.getRetryWaitMillis())));
+        .retryWhen(retry(clientProperties.getNumRetries(),
+            Duration.ofMillis(clientProperties.getRetryWaitMillis())));
   }
 
   private <T> Mono<T> getMonoResponse(URI uri, String token, Class<T> t) {
@@ -154,8 +154,8 @@ public class CamundaClientImpl implements CamundaClient {
         .retrieve()
         .onStatus(HttpStatusCode::isError, CamundaClientImpl::handleError)
         .bodyToMono(t)
-        .retryWhen(retry(openidClientProperties.getNumRetries(),
-            Duration.ofMillis(openidClientProperties.getRetryWaitMillis())));
+        .retryWhen(retry(clientProperties.getNumRetries(),
+            Duration.ofMillis(clientProperties.getRetryWaitMillis())));
   }
 
   private <T> Mono<T> post(URI uri, Object body, String accessToken, Class<T> t) {
@@ -172,8 +172,8 @@ public class CamundaClientImpl implements CamundaClient {
         .retrieve()
         .onStatus(HttpStatusCode::isError, CamundaClientImpl::handleError)
         .bodyToMono(t)
-        .retryWhen(retry(openidClientProperties.getNumRetries(),
-            Duration.ofMillis(openidClientProperties.getRetryWaitMillis())));
+        .retryWhen(retry(clientProperties.getNumRetries(),
+            Duration.ofMillis(clientProperties.getRetryWaitMillis())));
   }
 
   public static Mono<Throwable> handleError(ClientResponse clientResponse) {

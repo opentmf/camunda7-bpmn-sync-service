@@ -47,8 +47,8 @@ public class BpmnSyncAutoConfiguration {
       var client = bpmnSyncProperties.getClient();
       var webClient = (WebClient) ctx.getBean(client + "WebClient");
       var tokenService = (TokenService) ctx.getBean(client + "TokenService");
-      var clientProperties = (BaseClientProperties<?>) ctx.getBean(client + "ClientProperties");
-      var camundaClient = new CamundaClientImpl(webClient, tokenService, camundaProperties, clientProperties);
+      var clientProperties = (BaseClientProperties) ctx.getBean(client + "ClientProperties");
+      var camundaClient = new CamundaClientImpl(webClient, tokenService, clientProperties, camundaProperties);
       var migrationService = new BpmnMigrationServiceImpl(bpmnSyncProperties, camundaClient);
       var bpmnSyncService = new BpmnSyncServiceImpl(
           bpmnSyncProperties, dbLockService, camundaClient, migrationService);

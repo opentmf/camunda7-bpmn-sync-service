@@ -56,7 +56,7 @@ public abstract class BaseIT {
     if (camundaClient == null) {
       camundaClient =
           new CamundaClientImpl(
-              openidWebClient, openidTokenService, camundaProperties, openidClientProperties);
+              openidWebClient, openidTokenService, openidClientProperties, camundaProperties);
     }
     return camundaClient;
   }
