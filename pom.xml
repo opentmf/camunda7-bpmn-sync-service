@@ -8,7 +8,7 @@
   </parent>
   <groupId>com.pia.commons</groupId>
   <artifactId>pia-bpmn-sync-service</artifactId>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>1.0.2</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -284,7 +284,7 @@
   <scm>
     <connection>scm:git:git@github.com:pia-commons/pia-bpmn-sync-service.git</connection>
     <developerConnection>scm:git:git@github.com:pia-commons/pia-bpmn-sync-service.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>pia-bpmn-sync-service-1.0.2</tag>
   </scm>
 
   <distributionManagement>
