@@ -9,13 +9,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.MethodMode;
 import org.springframework.test.context.ActiveProfiles;
 
 /**
  * @author Gokhan Demir
  */
 @ActiveProfiles("embedded-camunda")
+@DirtiesContext
 class BpmnSyncServiceIT extends BaseIT {
 
   static {
@@ -30,7 +30,6 @@ class BpmnSyncServiceIT extends BaseIT {
   private BpmnSyncService bpmnSyncService;
 
   @Test
-  @DirtiesContext(methodMode = MethodMode.AFTER_METHOD)
   void test_ensureBpmnConsistency_withDeploymentEnabled_deploysBpmnFilesSuccessfully() {
     bpmnSyncProperties.setEnabled(true);
     var result = Assertions.assertDoesNotThrow(bpmnSyncService::ensureBpmnConsistency);

@@ -1,6 +1,5 @@
 package com.pia.bpmn.sync;
 
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
 import com.pia.bpmn.sync.client.api.CamundaClient;
@@ -47,7 +46,6 @@ public abstract class BaseIT {
   void initTokenProperties() {
     var tokenConfig = openidClientProperties.getTokenConfig();
     tokenConfig.setTokenUrl(URI.create(mockServer.getBaseUrl() + "/oauth2/token"));
-    tokenConfig.setCacheName("cache-" + randomAlphabetic(10));
   }
 
   private CamundaClient camundaClient = null;

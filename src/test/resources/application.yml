@@ -37,7 +37,6 @@ pia:
           token-url: http://localhost:1080/oauth2/token
           basic-auth-username: user
           basic-auth-password: pass
-          cache-name: client1-token-cache
           cache-expiry-seconds: 60
           form-data:
             username: user

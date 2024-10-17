@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.MethodMode;
 import org.springframework.test.context.ActiveProfiles;
 
 /**
@@ -17,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
  */
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("it")
+@DirtiesContext
 class BpmnSyncApplicationIT {
 
   static {
@@ -24,7 +24,6 @@ class BpmnSyncApplicationIT {
   }
 
   @Test
-  @DirtiesContext(methodMode = MethodMode.AFTER_METHOD)
   void testBpmnSyncAutoConfiguration_withInvalidData_throwsException() {
     // for getting rid of unused class.
     Assertions.assertThrows(

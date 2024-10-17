@@ -25,5 +25,3 @@ pia:
     openid:
       client1:
         connection-provider-name: client1-provider-embedded-camunda
-        token-config:
-          cache-name: client1-token-cache-embedded-camunda

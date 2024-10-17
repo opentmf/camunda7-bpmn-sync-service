@@ -225,3 +225,5 @@ RETURNING *
 - Simplifies configuration properties
 ### 1.0.2
 - Updates dependency versions of pia-web-clients and pia-db-lock-service to their latest.
+### 1.0.3
+- Updates dependency versions of pia-web-clients and pia-db-lock-service to their latest.
