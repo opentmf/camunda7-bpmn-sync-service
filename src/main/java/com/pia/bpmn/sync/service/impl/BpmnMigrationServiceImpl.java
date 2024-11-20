@@ -11,6 +11,7 @@ import com.pia.bpmn.sync.model.ProcessDefinition;
 import com.pia.bpmn.sync.model.ProcessInstanceQuery;
 import com.pia.bpmn.sync.service.api.BpmnMigrationService;
 import java.util.Collection;
+import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -42,6 +43,8 @@ public class BpmnMigrationServiceImpl implements BpmnMigrationService {
         deployment.getDeployedProcessDefinitions().size());
     ObjectCount count = new ObjectCount();
     Flux.fromIterable(deployment.getDeployedProcessDefinitions().values())
+        .filter(processDefinition ->
+            !isInitialDeployment(processDefinition, this::logSkipMigrationStep))
         .flatMap(this::migrate)
         .doOnNext(signal -> accumulateJobsCreated(count, signal))
         .blockLast();
@@ -67,10 +70,14 @@ public class BpmnMigrationServiceImpl implements BpmnMigrationService {
   }
 
   private Mono<ExecuteMigrationPlanAsyncResponse> noPrevVersionExists(ProcessDefinition target) {
+    logSkipMigrationStep(target);
+    return Mono.just(emptyResponse(target));
+  }
+
+  private void logSkipMigrationStep(ProcessDefinition target) {
     log.debug("Skipping migration of {} from version {} to {}, "
             + "because no previous process definition exists.",
         target.getKey(), target.getVersion() - 1, target.getVersion());
-    return Mono.just(emptyResponse(target));
   }
 
   private Mono<ExecuteMigrationPlanAsyncResponse> migrate(ProcessDefinition source,
@@ -78,6 +85,16 @@ public class BpmnMigrationServiceImpl implements BpmnMigrationService {
     log.trace("Getting process instance count for process definition id: {}", source.getId());
     return camundaClient.getProcessInstanceCount(source.getId())
         .flatMap(count -> migrateIfProcessesExist(source, target, count));
+  }
+
+  private boolean isInitialDeployment(
+      ProcessDefinition processDefinition, Consumer<ProcessDefinition> actionIfTrue) {
+    if (processDefinition.getVersion() > 1) {
+      return false;
+    } else {
+      actionIfTrue.accept(processDefinition);
+      return true;
+    }
   }
 
   private Mono<ExecuteMigrationPlanAsyncResponse> migrateIfProcessesExist(

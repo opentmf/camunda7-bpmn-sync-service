@@ -48,21 +48,19 @@ public abstract class BaseIT {
     tokenConfig.setTokenUrl(URI.create(mockServer.getBaseUrl() + "/oauth2/token"));
   }
 
-  private CamundaClient camundaClient = null;
-
   protected final CamundaClient getCamundaClient() {
-    if (camundaClient == null) {
-      camundaClient =
-          new CamundaClientImpl(
-              openidWebClient, openidTokenService, openidClientProperties, camundaProperties);
-    }
-    return camundaClient;
+   return new CamundaClientImpl(
+          openidWebClient, openidTokenService, openidClientProperties, camundaProperties);
   }
 
   protected final BpmnSyncService getBpmnSyncService() {
-    var client = getCamundaClient();
-    var migrationService = new BpmnMigrationServiceImpl(bpmnSyncProperties, client);
+    var camundaClient = getCamundaClient();
+    return getBpmnSyncService(camundaClient);
+  }
+
+  protected final BpmnSyncService getBpmnSyncService(CamundaClient camundaClient) {
+    var migrationService = new BpmnMigrationServiceImpl(bpmnSyncProperties, camundaClient);
     return new BpmnSyncServiceImpl(
-        bpmnSyncProperties, dbLockService, client, migrationService);
+        bpmnSyncProperties, dbLockService, camundaClient, migrationService);
   }
 }
