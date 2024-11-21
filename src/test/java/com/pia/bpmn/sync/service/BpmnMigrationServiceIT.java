@@ -1,6 +1,10 @@
 package com.pia.bpmn.sync.service;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 import com.pia.bpmn.sync.BaseIT;
@@ -37,6 +41,9 @@ class BpmnMigrationServiceIT extends BaseIT {
     }
   }
 
+  private static final String MAIN_BPMN_PROCESS_KEY = "Sample_BPMN";
+  private static final String DUMMY_NEW_BPMN_PROCESS_KEY = "Dummy_BPMN";
+
   private static Resource[] getResources(String locationPattern) throws IOException {
     return new PathMatchingResourcePatternResolver().getResources(locationPattern);
   }
@@ -44,7 +51,8 @@ class BpmnMigrationServiceIT extends BaseIT {
   @Test
   void testAutoMigration_withModifiedBpmn_migratesSuccessfully() {
     bpmnSyncProperties.setEnabled(true);
-    var bpmnSyncService = getBpmnSyncService();
+    var camundaClient = Mockito.spy(getCamundaClient());
+    var bpmnSyncService = getBpmnSyncService(camundaClient);
 
     try (MockedStatic<ResourceUtil> mock = Mockito.mockStatic(ResourceUtil.class)) {
 
@@ -56,54 +64,67 @@ class BpmnMigrationServiceIT extends BaseIT {
       bpmnSyncProperties.setAutoMigrate(false);
       bpmnSyncProperties.setBpmnVersion("v1");
       Assertions.assertDoesNotThrow(bpmnSyncService::ensureBpmnConsistency);
+      verify(camundaClient, times(0)).getProcessDefinition(anyString(), anyInt());
 
       // same version again, deployment not necessary
       mock.when(ResourceUtil::getBpmnFiles).thenReturn(BPMN_V1);
       bpmnSyncProperties.setAutoMigrate(false);
       bpmnSyncProperties.setBpmnVersion("v1");
       Assertions.assertDoesNotThrow(bpmnSyncService::ensureBpmnConsistency);
+      verify(camundaClient, times(0)).getProcessDefinition(anyString(), anyInt());
 
       // attempted second deployment, but no bpmn change
       mock.when(ResourceUtil::getBpmnFiles).thenReturn(BPMN_V1);
-      bpmnSyncProperties.setAutoMigrate(false);
+      bpmnSyncProperties.setAutoMigrate(true);
       bpmnSyncProperties.setBpmnVersion("v1.1");
       Assertions.assertDoesNotThrow(bpmnSyncService::ensureBpmnConsistency);
+      verify(camundaClient, times(0)).getProcessDefinition(anyString(), anyInt());
 
       // real second deployment, no process instance, migration not necessary
       mock.when(ResourceUtil::getBpmnFiles).thenReturn(BPMN_V2);
       bpmnSyncProperties.setAutoMigrate(true);
       bpmnSyncProperties.setBpmnVersion("v2");
       var deploy2 = Assertions.assertDoesNotThrow(bpmnSyncService::ensureBpmnConsistency);
+      verify(camundaClient, times(1)).getProcessDefinition(anyString(), anyInt());
 
       // third deployment, we start one process instance, successful migration
-      String processDefinitionId = processDefinitionId(deploy2);
+      String processDefinitionId = processDefinitionId(deploy2, MAIN_BPMN_PROCESS_KEY);
       ProcessEngines.getDefaultProcessEngine().getRuntimeService()
           .startProcessInstanceById(processDefinitionId);
 
       await()
           .atMost(1500, TimeUnit.MILLISECONDS)
           .pollInterval(100, TimeUnit.MILLISECONDS)
-          .until(() -> processExists(deploy2));
+          .until(() -> processExists(deploy2, MAIN_BPMN_PROCESS_KEY));
 
       mock.when(ResourceUtil::getBpmnFiles).thenReturn(BPMN_V3);
       bpmnSyncProperties.setAutoMigrate(true);
       bpmnSyncProperties.setBpmnVersion("v3");
       var deploy3 = Assertions.assertDoesNotThrow(bpmnSyncService::ensureBpmnConsistency);
+      //expect to call twice as we use same spy object that was already called once for v2
+      verify(camundaClient, times(2)).getProcessDefinition(anyString(), anyInt());
 
       await()
           .atMost(1500, TimeUnit.MILLISECONDS)
           .pollInterval(100, TimeUnit.MILLISECONDS)
-          .until(() -> processExists(deploy3));
+          .until(() -> processExists(deploy3, MAIN_BPMN_PROCESS_KEY));
+
+      //we verify dummy bpmn is deployed.
+      Assertions.assertDoesNotThrow(() -> processDefinitionId(deploy3, DUMMY_NEW_BPMN_PROCESS_KEY));
+
     }
   }
 
-  private boolean processExists(CamundaDeploymentResponse response) {
-    var count = getCamundaClient().getProcessInstanceCount(processDefinitionId(response)).block();
+  private boolean processExists(CamundaDeploymentResponse response, String bpmnProcessKey) {
+    var count = getCamundaClient()
+        .getProcessInstanceCount(processDefinitionId(response, bpmnProcessKey))
+        .block();
     return count != null && count.getCount() > 0;
   }
 
-  private String processDefinitionId(CamundaDeploymentResponse response) {
+  private String processDefinitionId(CamundaDeploymentResponse response, String bpmnProcessKey) {
     return response.getDeployedProcessDefinitions().values().stream()
+        .filter(processDefinition -> processDefinition.getKey().equals(bpmnProcessKey))
         .findFirst()
         .orElseThrow(IllegalStateException::new)
         .getId();
