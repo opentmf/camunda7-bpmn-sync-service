@@ -52,8 +52,9 @@ public class BpmnSyncServiceImpl implements BpmnSyncService {
     try {
       String requestedVersion = bpmnSyncProperties.getBpmnVersion();
       lock = dbLockService.acquireLock(LockType.BPMN, requestedVersion);
-      if (lock.isUpgradeRequired(requestedVersion) ||
-          lock.isDowngradeRequired(requestedVersion, bpmnSyncProperties.getDowngradeAllowedAfter()))
+      if (lock.isUpgrade() ||
+          (lock.isDowngrade() &&
+              lock.isDowngradeAllowed(bpmnSyncProperties.getDowngradeAllowedAfter())))
       {
         deploymentResponse = syncBpmnFiles(bpmnFiles);
         deployedCount = (deploymentResponse == null || deploymentResponse
@@ -65,7 +66,7 @@ public class BpmnSyncServiceImpl implements BpmnSyncService {
         dbLockService.releaseLock(lock, false);
         lockReleased = true;
         log.info("{} BPMN files are already up-to-date for version {}.",
-            bpmnSyncProperties.getDeploymentName(), lock.getPreviousLockVersion());
+            bpmnSyncProperties.getDeploymentName(), lock.getLockVersion());
       }
     } catch (Exception e) {
       dbLockService.releaseLock(lock, false);

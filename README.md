@@ -229,3 +229,5 @@ RETURNING *
 - Updates dependency versions of pia-web-clients and pia-db-lock-service to their latest.
 ### 1.0.4
 - Updates dependency versions of pia-web-clients and pia-db-lock-service to their latest.
+### 1.0.5
+- Updates dependency version pia-db-lock-service to the backward incompatible 1.0.5
