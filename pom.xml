@@ -14,7 +14,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>17</java.version>
 
-    <pia-db-lock-service.version>1.0.6</pia-db-lock-service.version>
+    <pia-db-lock-service.version>1.0.7</pia-db-lock-service.version>
     <pia-openid-webclient-provider.version>1.0.7</pia-openid-webclient-provider.version>
     <pia-basic-webclient-provider.version>1.0.7</pia-basic-webclient-provider.version>
 

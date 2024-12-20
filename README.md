@@ -235,3 +235,6 @@ RETURNING *
 ### 1.0.6
 - Updates pia-db-lock-service version to 1.0.6
 - Updates Spring Boot version to 3.4.0
+### 1.0.7
+- Updates pia-db-lock-service version to 1.0.7
+- Fixed autoconfiguration conditionals.
