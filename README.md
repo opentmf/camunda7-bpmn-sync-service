@@ -238,3 +238,5 @@ RETURNING *
 ### 1.0.7
 - Updates pia-db-lock-service version to 1.0.7
 - Fixed autoconfiguration conditionals.
+### 1.0.8
+- Fixed autoconfiguration conditionals.

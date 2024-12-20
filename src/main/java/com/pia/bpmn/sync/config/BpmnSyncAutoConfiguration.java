@@ -27,7 +27,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @ConditionalOnBean(name = "dbLockService")
 @EnableConfigurationProperties({CamundaProperties.class, BpmnSyncProperties.class})
 @ConditionalOnExpression(
-    "${pia.bpmn-sync.enabled} && T(java.net.URI).create('${camunda.bpm.client.base-url}').toString().length() > 0")
+    "${pia.bpmn-sync.enabled:true} && T(java.net.URI).create('${camunda.bpm.client.base-url}').toString().length() > 0")
 @Slf4j
 public class BpmnSyncAutoConfiguration {
 
