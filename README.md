@@ -240,3 +240,5 @@ RETURNING *
 - Fixed autoconfiguration conditionals.
 ### 1.0.8
 - Fixed autoconfiguration conditionals.
+### 1.0.9
+- Updates to pia-web-clients 1.0.8, for fewer dependencies for the reactive WebClient.
