@@ -1,5 +1,6 @@
 package com.pia.bpmn.sync.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pia.bpmn.sync.client.impl.CamundaClientImpl;
 import com.pia.bpmn.sync.service.impl.BpmnMigrationServiceImpl;
 import com.pia.bpmn.sync.service.impl.BpmnSyncServiceImpl;
@@ -13,6 +14,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
@@ -22,20 +24,24 @@ import org.springframework.web.reactive.function.client.WebClient;
     after = DbLockAutoConfiguration.class,
     afterName = {
       "com.pia.client.openid.config.OpenidWebClientProviderAutoConfiguration",
-      "com.pia.client.basic.config.BasicWebClientProviderAutoConfiguration"
+      "com.pia.client.openid.config.OpenidWebClientsStarterAutoConfiguration",
+      "com.pia.client.basic.config.BasicWebClientProviderAutoConfiguration",
+      "com.pia.client.basic.config.BasicWebClientsStarterAutoConfiguration"
     })
 @ConditionalOnBean(name = "dbLockService")
 @EnableConfigurationProperties({CamundaProperties.class, BpmnSyncProperties.class})
 @ConditionalOnExpression(
     "${pia.bpmn-sync.enabled:true} && T(java.net.URI).create('${camunda.bpm.client.base-url}').toString().length() > 0")
 @Slf4j
+@DependsOn("objectMapper")
 public class BpmnSyncAutoConfiguration {
 
   public BpmnSyncAutoConfiguration(ApplicationContext ctx, BpmnSyncProperties bpmnSyncProperties,
-      CamundaProperties camundaProperties, DbLockService dbLockService) {
+      CamundaProperties camundaProperties, DbLockService dbLockService, ObjectMapper objectMapper) {
 
     try {
       log.info("Initializing BPMN Sync.");
+      log.trace("objectMapper registered module ids: {}", objectMapper.getRegisteredModuleIds());
       var client = bpmnSyncProperties.getClient();
       var webClient = (WebClient) ctx.getBean(client + "WebClient");
       var tokenService = (TokenService) ctx.getBean(client + "TokenService");

@@ -242,3 +242,6 @@ RETURNING *
 - Fixed autoconfiguration conditionals.
 ### 1.0.9
 - Updates to pia-web-clients 1.0.8, for fewer dependencies for the reactive WebClient.
+### 1.1.0
+- Added Web Client Starters to the autoconfiguration afterName.
+- Added objectMapper bean as a dependency to the autoconfiguration

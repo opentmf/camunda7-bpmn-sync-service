@@ -1,5 +1,6 @@
 package com.pia.bpmn.sync;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pia.bpmn.sync.config.BpmnSyncAutoConfiguration;
 import com.pia.bpmn.sync.config.BpmnSyncProperties;
 import org.junit.jupiter.api.Assertions;
@@ -27,8 +28,13 @@ class BpmnSyncApplicationIT {
   void testBpmnSyncAutoConfiguration_withInvalidData_throwsException() {
     // for getting rid of unused class.
     Assertions.assertThrows(
-        Exception.class, () -> new BpmnSyncAutoConfiguration(
-            Mockito.mock(ApplicationContext.class),
-            Mockito.mock(BpmnSyncProperties.class), null, null));
+        Exception.class,
+        () ->
+            new BpmnSyncAutoConfiguration(
+                Mockito.mock(ApplicationContext.class),
+                Mockito.mock(BpmnSyncProperties.class),
+                null,
+                null,
+                new ObjectMapper()));
   }
 }
