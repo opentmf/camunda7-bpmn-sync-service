@@ -16,7 +16,7 @@ logbook:
   format:
     style: http
 
-pia:
+opentmf:
   db-lock:
     lock-acquire-poll-interval: 100
     lock-acquire-timeout: 1000

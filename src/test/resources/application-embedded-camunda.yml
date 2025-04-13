@@ -13,7 +13,7 @@ camunda:
       properties:
         historyTimeToLive: P36500D
 
-pia:
+opentmf:
 
   bpmn-sync:
     enabled: false

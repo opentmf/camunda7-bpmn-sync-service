@@ -4,7 +4,7 @@ camunda:
     client:
       base-url: http://localhost/engine-rest
 
-pia:
+opentmf:
   bpmn-sync:
     enabled: false
     deployment-name: TestDeployment

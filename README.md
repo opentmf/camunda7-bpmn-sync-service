@@ -1,4 +1,4 @@
-# BPMN Synchronization Service
+# Camunda7 BPMN Synchronization Service
 This service synchronizes the BPMN files under classpath:bpmn/ folder with the configured Camunda server.
 
 Depending on the value of auto-migrate, migrates the deployed BPMN's previous version's process instances to the newly deployed version.
@@ -29,13 +29,13 @@ The result of the auto-migration can be checked using Camunda Cockpit.
 To use this service from a microservice, the following six small steps are necessary:
 
 ### 1. pom.xml Additions
-Import pia-commons-library dependencies
+Import opentmf-versions for managing the opentmf library dependencies
 ```xml
 <dependencyManagement>
   <dependencies>
     <dependency>
-      <groupId>com.pia.commons</groupId>
-      <artifactId>pia-commons-versions</artifactId>
+      <groupId>org.opentmf</groupId>
+      <artifactId>opentmf-versions</artifactId>
       <version>LATEST</version>
       <type>pom</type>
       <scope>import</scope>
@@ -43,11 +43,11 @@ Import pia-commons-library dependencies
   </dependencies>
 </dependencyManagement>
 ```
-Depend on the latest version of pia-bpmn-sync-service: 
+Depend on the camunda7-bpmn-sync-service: 
 ```xml
   <dependency>
-    <groupId>com.pia.commons</groupId>
-    <artifactId>pia-bpmn-sync-service</artifactId>
+    <groupId>org.opentmf.camunda</groupId>
+    <artifactId>camunda7-bpmn-sync-service</artifactId>
   </dependency>
 ```
 ### 2. Reorganize the BPMN files
@@ -58,7 +58,7 @@ Depend on the latest version of pia-bpmn-sync-service:
 ### 3. Specify the BPMN Sync Properties
 In your application.yaml, specify the BPMN Sync Properties:
 ```yaml
-pia:
+opentmf:
   bpmn-sync:
     enabled: true
     deployment-name: UC-SOA
@@ -69,9 +69,9 @@ pia:
 
 **client:** The client id to use. This id is the prefix to the following exposed beans:
 
-1. webClient
-2. tokenService
-3. clientProperties
+1. `${client}WebClient`
+2. `${client}TokenService`
+3. `${client}ClientProperties`
 
 The BPMN Sync Service remembers the latest deployed BPMN versions. If the specified bpmnVersion is already the latest deployed version, then no synchronization will take place. Therefore, it is the developers' responsibility to increase the bpmn-version when any of the BPMN files changes, to enforce the BPMN synchronization.
 
@@ -89,133 +89,142 @@ spring:
 ### 5. Skip BPMN Sync in IT Tests
 In order to skip the BPMN Sync in the IT tests, first disable the BPMN Sync Service in your application-it.yml file:
 ```yaml
-pia:
+opentmf:
   db-lock:
     create-tables: false
   bpmn-sync:
     enabled: false
 ```
+
+### 6. Expose `objectMapper` Bean
+The BPMN Sync Service requires the `objectMapper` bean to serialize and deserialize the Camunda API exchanges. Therefore it is required to expose a bean of type `com.fasterxml.jackson.databind.ObjectMapper` with the bean name `objectMapper`.
+
 ## Sample Logs
 Here are some sample log statements from a microservice's startup logs:
 
 ### Initial Deployment, Migration not necessary
 ```text
-08:06.373 INFO  [main] c.p.b.s.s.i.BpmnSyncServiceImpl -- Starting BPMN Deployment for TestDeployment, version: v1
-08:06.378 DEBUG [main] c.p.d.l.s.i.DbLockServiceImpl -- Attempting to acquire lock for lockType = BPMN, and lockVersion = v1
-08:06.391 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK(lock_type, lock_version, hostname) values (('B'), ('v1'), ('gentoo.lan'))
+23:42.893 INFO  [main] o.o.b.s.s.i.BpmnSyncServiceImpl -- Starting BPMN Deployment for TestDeployment, version: v1
+23:42.897 DEBUG [main] o.o.d.l.s.i.DbLockServiceImpl -- Attempting to acquire lock for lockType = BPMN, and lockVersion = v1
+23:42.905 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK(lock_type, lock_version, hostname) values (('B'), ('v1'), ('gentoo.lan'))
 RETURNING *
-08:06.394 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: select lock_version, lock_acquired_on from DB_LOCK_LATEST where lock_type = ('B')
-08:06.399 DEBUG [main] c.p.d.l.s.i.DbLockServiceImpl -- Acquired lock id = 1 for lockType = BPMN, and lockVersion = v1.
-08:06.399 INFO  [main] c.p.b.s.s.i.BpmnSyncServiceImpl -- Will synchronize 1 BPMN files, for TestDeployment, bpmnVersion: v1
-08:06.412 DEBUG [main] c.p.c.o.s.i.OpenidTokenClientImpl -- Will retrieve a new openid token from url: http://localhost:33095/oauth2/token, scope: [openid], username: [user]
-08:08.653 INFO  [reactor-http-epoll-2] c.p.b.s.s.i.BpmnSyncServiceImpl -- BPMN deployment for TestDeployment, version v1 has been completed. Deployed BPMN count: 1
-08:08.654 DEBUG [reactor-http-epoll-2] c.p.b.s.s.i.BpmnSyncServiceImpl -- Deployed BPMN Files and Their Versions follows:
-08:08.654 DEBUG [reactor-http-epoll-2] c.p.b.s.s.i.BpmnSyncServiceImpl -- Version: 1, BPMN: SampleBpmn.bpmn
-08:08.655 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: select count(*) from DB_LOCK_LATEST where lock_type = ('B')
-08:08.657 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK_LATEST (lock_type, lock_version, hostname, lock_acquired_on) select lock_type, lock_version, hostname, created_on from DB_LOCK where id = ('1'::int4)
-08:08.659 TRACE [main] c.p.d.l.s.i.DbLockServiceImpl -- Initialized LatestLock using lockId = 1
-08:08.660 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK_HISTORY (lock_id, lock_type, lock_version, hostname, lock_acquired_on) select id, lock_type, lock_version, hostname, created_on from DB_LOCK where DB_LOCK.id = ('1'::int4)
-08:08.663 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: delete from DB_LOCK where id = ('1'::int4) and lock_type = ('B')
-08:08.665 INFO  [main] c.p.d.l.s.i.DbLockServiceImpl -- Released lock after 2 seconds. lockId = 1, and lockType = BPMN
-08:08.667 TRACE [main] c.p.d.l.s.i.DbLockServiceImpl -- Cancelling auto lock release timer for lock id = 1, type = BPMN
-08:08.667 INFO  [main] c.p.b.s.s.i.BpmnMigrationServiceImpl -- Skipping BPMN migration because auto-migrate is set to false.
+23:42.909 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: select lock_version, lock_acquired_on from DB_LOCK_LATEST where lock_type = ('B')
+23:42.914 DEBUG [main] o.o.d.l.s.i.DbLockServiceImpl -- Acquired lock id = 1 for lockType = BPMN, and lockVersion = v1.
+23:42.915 INFO  [main] o.o.b.s.s.i.BpmnSyncServiceImpl -- Will synchronize 1 BPMN files, for TestDeployment, bpmnVersion: v1
+23:42.936 DEBUG [main] o.o.c.o.s.i.OpenidTokenClientImpl -- Will retrieve a new openid token from url: http://localhost:34637/oauth2/token, scope: [openid], username: [user]
+23:45.146 INFO  [reactor-http-epoll-2] o.o.b.s.s.i.BpmnSyncServiceImpl -- BPMN deployment for TestDeployment, version v1 has been completed. Deployed BPMN count: 1
+23:45.147 DEBUG [reactor-http-epoll-2] o.o.b.s.s.i.BpmnSyncServiceImpl -- Deployed BPMN Files and Their Versions follows:
+23:45.147 DEBUG [reactor-http-epoll-2] o.o.b.s.s.i.BpmnSyncServiceImpl -- Version: 1, BPMN: SampleBpmn.bpmn
+23:45.147 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: select count(*) from DB_LOCK_LATEST where lock_type = ('B')
+23:45.149 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK_LATEST (lock_type, lock_version, hostname, lock_acquired_on) select lock_type, lock_version, hostname, created_on from DB_LOCK where id = ('1'::int4)
+23:45.150 TRACE [main] o.o.d.l.s.i.DbLockServiceImpl -- Initialized LatestLock using lockId = 1
+23:45.151 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK_HISTORY (lock_id, lock_type, lock_version, hostname, lock_acquired_on) select id, lock_type, lock_version, hostname, created_on from DB_LOCK where DB_LOCK.id = ('1'::int4)
+23:45.152 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: delete from DB_LOCK where id = ('1'::int4) and lock_type = ('B')
+23:45.153 INFO  [main] o.o.d.l.s.i.DbLockServiceImpl -- Released lock after 2 seconds. lockId = 1, and lockType = BPMN
+23:45.154 TRACE [main] o.o.d.l.s.i.DbLockServiceImpl -- Cancelling auto lock release timer for lock id = 1, type = BPMN
+23:45.154 INFO  [main] o.o.b.s.s.i.BpmnMigrationServiceImpl -- Skipping BPMN migration because auto-migrate is set to false.
 ```
+
 ### When all files are up-to-date
 ```text
-08:08.669 INFO  [main] c.p.b.s.s.i.BpmnSyncServiceImpl -- Starting BPMN Deployment for TestDeployment, version: v1
-08:08.670 DEBUG [main] c.p.d.l.s.i.DbLockServiceImpl -- Attempting to acquire lock for lockType = BPMN, and lockVersion = v1
-08:08.671 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK(lock_type, lock_version, hostname) values (('B'), ('v1'), ('gentoo.lan'))
+23:45.163 INFO  [main] o.o.b.s.s.i.BpmnSyncServiceImpl -- Starting BPMN Deployment for TestDeployment, version: v1
+23:45.164 DEBUG [main] o.o.d.l.s.i.DbLockServiceImpl -- Attempting to acquire lock for lockType = BPMN, and lockVersion = v1
+23:45.164 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK(lock_type, lock_version, hostname) values (('B'), ('v1'), ('gentoo.lan'))
 RETURNING *
-08:08.673 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: select lock_version, lock_acquired_on from DB_LOCK_LATEST where lock_type = ('B')
-08:08.677 DEBUG [main] c.p.d.l.s.i.DbLockServiceImpl -- Acquired lock id = 2 for lockType = BPMN, and lockVersion = v1.
-08:08.678 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK_HISTORY (lock_id, lock_type, lock_version, hostname, lock_acquired_on) select id, lock_type, lock_version, hostname, created_on from DB_LOCK where DB_LOCK.id = ('2'::int4)
-08:08.680 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: delete from DB_LOCK where id = ('2'::int4) and lock_type = ('B')
-08:08.682 INFO  [main] c.p.d.l.s.i.DbLockServiceImpl -- Released lock after 0 seconds. lockId = 2, and lockType = BPMN
-08:08.683 TRACE [main] c.p.d.l.s.i.DbLockServiceImpl -- Cancelling auto lock release timer for lock id = 2, type = BPMN
-08:08.684 INFO  [main] c.p.b.s.s.i.BpmnSyncServiceImpl -- TestDeployment BPMN files are already up-to-date for version v1.
-08:08.684 INFO  [main] c.p.b.s.s.i.BpmnMigrationServiceImpl -- Skipping BPMN migration because auto-migrate is set to false.
+23:45.165 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: select lock_version, lock_acquired_on from DB_LOCK_LATEST where lock_type = ('B')
+23:45.167 DEBUG [main] o.o.d.l.s.i.DbLockServiceImpl -- Acquired lock id = 2 for lockType = BPMN, and lockVersion = v1.
+23:45.168 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK_HISTORY (lock_id, lock_type, lock_version, hostname, lock_acquired_on) select id, lock_type, lock_version, hostname, created_on from DB_LOCK where DB_LOCK.id = ('2'::int4)
+23:45.169 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: delete from DB_LOCK where id = ('2'::int4) and lock_type = ('B')
+23:45.170 INFO  [main] o.o.d.l.s.i.DbLockServiceImpl -- Released lock after 0 seconds. lockId = 2, and lockType = BPMN
+23:45.171 TRACE [main] o.o.d.l.s.i.DbLockServiceImpl -- Cancelling auto lock release timer for lock id = 2, type = BPMN
+23:45.171 INFO  [main] o.o.b.s.s.i.BpmnSyncServiceImpl -- TestDeployment BPMN files are already up-to-date for version v1.
+23:45.171 INFO  [main] o.o.b.s.s.i.BpmnMigrationServiceImpl -- Skipping BPMN migration because auto-migrate is set to false.
 ```
+
 ### When all files are up-to-date but version is increased
 ```text
-08:08.685 INFO  [main] c.p.b.s.s.i.BpmnSyncServiceImpl -- Starting BPMN Deployment for TestDeployment, version: v1.1
-08:08.686 DEBUG [main] c.p.d.l.s.i.DbLockServiceImpl -- Attempting to acquire lock for lockType = BPMN, and lockVersion = v1.1
-08:08.687 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK(lock_type, lock_version, hostname) values (('B'), ('v1.1'), ('gentoo.lan'))
+23:45.173 INFO  [main] o.o.b.s.s.i.BpmnSyncServiceImpl -- Starting BPMN Deployment for TestDeployment, version: v1.1
+23:45.174 DEBUG [main] o.o.d.l.s.i.DbLockServiceImpl -- Attempting to acquire lock for lockType = BPMN, and lockVersion = v1.1
+23:45.174 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK(lock_type, lock_version, hostname) values (('B'), ('v1.1'), ('gentoo.lan'))
 RETURNING *
-08:08.689 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: select lock_version, lock_acquired_on from DB_LOCK_LATEST where lock_type = ('B')
-08:08.692 DEBUG [main] c.p.d.l.s.i.DbLockServiceImpl -- Acquired lock id = 3 for lockType = BPMN, and lockVersion = v1.1.
-08:08.693 INFO  [main] c.p.b.s.s.i.BpmnSyncServiceImpl -- Will synchronize 1 BPMN files, for TestDeployment, bpmnVersion: v1.1
-08:08.700 TRACE [main] c.p.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:33095/oauth2/token, scope: openid, username: user
-08:08.755 WARN  [reactor-http-epoll-2] c.p.b.s.s.i.BpmnSyncServiceImpl -- TestDeployment BPMN synchronization completed without deploying any BPMN. The specified bpmnVersion was: v1.1. Hint: Do not change the bpmnVersion when there are no BPMN changes.
-08:08.755 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK_HISTORY (lock_id, lock_type, lock_version, hostname, lock_acquired_on) select id, lock_type, lock_version, hostname, created_on from DB_LOCK where DB_LOCK.id = ('3'::int4)
-08:08.757 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: delete from DB_LOCK where id = ('3'::int4) and lock_type = ('B')
-08:08.759 INFO  [main] c.p.d.l.s.i.DbLockServiceImpl -- Released lock after 0 seconds. lockId = 3, and lockType = BPMN
-08:08.760 TRACE [main] c.p.d.l.s.i.DbLockServiceImpl -- Cancelling auto lock release timer for lock id = 3, type = BPMN
-08:08.761 INFO  [main] c.p.b.s.s.i.BpmnMigrationServiceImpl -- Skipping BPMN migration because auto-migrate is set to false.
+23:45.175 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: select lock_version, lock_acquired_on from DB_LOCK_LATEST where lock_type = ('B')
+23:45.177 DEBUG [main] o.o.d.l.s.i.DbLockServiceImpl -- Acquired lock id = 3 for lockType = BPMN, and lockVersion = v1.1.
+23:45.177 INFO  [main] o.o.b.s.s.i.BpmnSyncServiceImpl -- Will synchronize 1 BPMN files, for TestDeployment, bpmnVersion: v1.1
+23:45.181 TRACE [main] o.o.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:34637/oauth2/token, scope: openid, username: user
+23:45.208 WARN  [reactor-http-epoll-2] o.o.b.s.s.i.BpmnSyncServiceImpl -- TestDeployment BPMN synchronization completed without deploying any BPMN. The specified bpmnVersion was: v1.1. Hint: Do not change the bpmnVersion when there are no BPMN changes.
+23:45.208 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK_HISTORY (lock_id, lock_type, lock_version, hostname, lock_acquired_on) select id, lock_type, lock_version, hostname, created_on from DB_LOCK where DB_LOCK.id = ('3'::int4)
+23:45.210 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: delete from DB_LOCK where id = ('3'::int4) and lock_type = ('B')
+23:45.211 INFO  [main] o.o.d.l.s.i.DbLockServiceImpl -- Released lock after 0 seconds. lockId = 3, and lockType = BPMN
+23:45.211 TRACE [main] o.o.d.l.s.i.DbLockServiceImpl -- Cancelling auto lock release timer for lock id = 3, type = BPMN
+23:45.211 INFO  [main] o.o.b.s.s.i.BpmnMigrationServiceImpl -- Auto-migration not necessary because no new BPMN has been deployed.
 ```
+
 ### When a single BPMN File Is Changed, auto-migrate: true, no previous version process instances exist
 ```text
-08:08.762 INFO  [main] c.p.b.s.s.i.BpmnSyncServiceImpl -- Starting BPMN Deployment for TestDeployment, version: v2
-08:08.763 DEBUG [main] c.p.d.l.s.i.DbLockServiceImpl -- Attempting to acquire lock for lockType = BPMN, and lockVersion = v2
-08:08.764 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK(lock_type, lock_version, hostname) values (('B'), ('v2'), ('gentoo.lan'))
+23:45.213 INFO  [main] o.o.b.s.s.i.BpmnSyncServiceImpl -- Starting BPMN Deployment for TestDeployment, version: v2
+23:45.213 DEBUG [main] o.o.d.l.s.i.DbLockServiceImpl -- Attempting to acquire lock for lockType = BPMN, and lockVersion = v2
+23:45.214 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK(lock_type, lock_version, hostname) values (('B'), ('v2'), ('gentoo.lan'))
 RETURNING *
-08:08.765 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: select lock_version, lock_acquired_on from DB_LOCK_LATEST where lock_type = ('B')
-08:08.768 DEBUG [main] c.p.d.l.s.i.DbLockServiceImpl -- Acquired lock id = 4 for lockType = BPMN, and lockVersion = v2.
-08:08.768 INFO  [main] c.p.b.s.s.i.BpmnSyncServiceImpl -- Will synchronize 1 BPMN files, for TestDeployment, bpmnVersion: v2
-08:08.769 TRACE [main] c.p.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:33095/oauth2/token, scope: openid, username: user
-08:08.855 INFO  [reactor-http-epoll-2] c.p.b.s.s.i.BpmnSyncServiceImpl -- BPMN deployment for TestDeployment, version v2 has been completed. Deployed BPMN count: 1
-08:08.856 DEBUG [reactor-http-epoll-2] c.p.b.s.s.i.BpmnSyncServiceImpl -- Deployed BPMN Files and Their Versions follows:
-08:08.857 DEBUG [reactor-http-epoll-2] c.p.b.s.s.i.BpmnSyncServiceImpl -- Version: 2, BPMN: SampleBpmn.bpmn
-08:08.857 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: select count(*) from DB_LOCK_LATEST where lock_type = ('B')
-08:08.858 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: update DB_LOCK_LATEST T set lock_version = L.lock_version, hostname = L.hostname, lock_acquired_on = L.created_on from DB_LOCK L where L.id = ('4'::int4) and T.lock_type = L.lock_type
-08:08.860 TRACE [main] c.p.d.l.s.i.DbLockServiceImpl -- Updated LatestLock using lockId = 4
-08:08.860 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK_HISTORY (lock_id, lock_type, lock_version, hostname, lock_acquired_on) select id, lock_type, lock_version, hostname, created_on from DB_LOCK where DB_LOCK.id = ('4'::int4)
-08:08.862 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: delete from DB_LOCK where id = ('4'::int4) and lock_type = ('B')
-08:08.864 INFO  [main] c.p.d.l.s.i.DbLockServiceImpl -- Released lock after 0 seconds. lockId = 4, and lockType = BPMN
-08:08.865 TRACE [main] c.p.d.l.s.i.DbLockServiceImpl -- Cancelling auto lock release timer for lock id = 4, type = BPMN
-08:08.866 INFO  [main] c.p.b.s.s.i.BpmnMigrationServiceImpl -- Starting BPMN migration for 1 deployed BPMNs.
-08:08.871 TRACE [main] c.p.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:33095/oauth2/token, scope: openid, username: user
-08:09.222 DEBUG [reactor-http-epoll-2] c.p.b.s.s.i.BpmnMigrationServiceImpl -- Previous version's process definition id: Sample_BPMN:1:7f16265c-79a4-11ef-a96e-0a0027000000
-08:09.222 TRACE [reactor-http-epoll-2] c.p.b.s.s.i.BpmnMigrationServiceImpl -- Getting process instance count for process definition id: Sample_BPMN:1:7f16265c-79a4-11ef-a96e-0a0027000000
-08:09.223 TRACE [reactor-http-epoll-2] c.p.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:33095/oauth2/token, scope: openid, username: user
-08:09.289 DEBUG [reactor-http-epoll-2] c.p.b.s.s.i.BpmnMigrationServiceImpl -- Migration not necessary for Sample_BPMN version 1 to 2 because no process instances exist.
-08:09.290 INFO  [main] c.p.b.s.s.i.BpmnMigrationServiceImpl -- BPMN Migration completed without creating any async migration jobs.
+23:45.215 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: select lock_version, lock_acquired_on from DB_LOCK_LATEST where lock_type = ('B')
+23:45.216 DEBUG [main] o.o.d.l.s.i.DbLockServiceImpl -- Acquired lock id = 4 for lockType = BPMN, and lockVersion = v2.
+23:45.216 INFO  [main] o.o.b.s.s.i.BpmnSyncServiceImpl -- Will synchronize 1 BPMN files, for TestDeployment, bpmnVersion: v2
+23:45.217 TRACE [main] o.o.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:34637/oauth2/token, scope: openid, username: user
+23:45.273 INFO  [reactor-http-epoll-2] o.o.b.s.s.i.BpmnSyncServiceImpl -- BPMN deployment for TestDeployment, version v2 has been completed. Deployed BPMN count: 1
+23:45.273 DEBUG [reactor-http-epoll-2] o.o.b.s.s.i.BpmnSyncServiceImpl -- Deployed BPMN Files and Their Versions follows:
+23:45.273 DEBUG [reactor-http-epoll-2] o.o.b.s.s.i.BpmnSyncServiceImpl -- Version: 2, BPMN: SampleBpmn.bpmn
+23:45.274 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: select count(*) from DB_LOCK_LATEST where lock_type = ('B')
+23:45.275 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: update DB_LOCK_LATEST T set lock_version = L.lock_version, hostname = L.hostname, lock_acquired_on = L.created_on from DB_LOCK L where L.id = ('4'::int4) and T.lock_type = L.lock_type
+23:45.276 TRACE [main] o.o.d.l.s.i.DbLockServiceImpl -- Updated LatestLock using lockId = 4
+23:45.277 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK_HISTORY (lock_id, lock_type, lock_version, hostname, lock_acquired_on) select id, lock_type, lock_version, hostname, created_on from DB_LOCK where DB_LOCK.id = ('4'::int4)
+23:45.277 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: delete from DB_LOCK where id = ('4'::int4) and lock_type = ('B')
+23:45.278 INFO  [main] o.o.d.l.s.i.DbLockServiceImpl -- Released lock after 0 seconds. lockId = 4, and lockType = BPMN
+23:45.278 TRACE [main] o.o.d.l.s.i.DbLockServiceImpl -- Cancelling auto lock release timer for lock id = 4, type = BPMN
+23:45.279 INFO  [main] o.o.b.s.s.i.BpmnMigrationServiceImpl -- Starting BPMN migration for 1 deployed BPMNs.
+23:45.286 TRACE [main] o.o.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:34637/oauth2/token, scope: openid, username: user
+23:45.619 DEBUG [reactor-http-epoll-2] o.o.b.s.s.i.BpmnMigrationServiceImpl -- Previous version's process definition id: Sample_BPMN:1:b4d4d6e0-1816-11f0-a4d9-1a5d066173a7
+23:45.619 TRACE [reactor-http-epoll-2] o.o.b.s.s.i.BpmnMigrationServiceImpl -- Getting process instance count for process definition id: Sample_BPMN:1:b4d4d6e0-1816-11f0-a4d9-1a5d066173a7
+23:45.621 TRACE [reactor-http-epoll-2] o.o.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:34637/oauth2/token, scope: openid, username: user
+23:45.670 DEBUG [reactor-http-epoll-2] o.o.b.s.s.i.BpmnMigrationServiceImpl -- Migration not necessary for Sample_BPMN version 1 to 2 because no process instances exist.
+23:45.671 INFO  [main] o.o.b.s.s.i.BpmnMigrationServiceImpl -- BPMN Migration completed without creating any async migration jobs.
 ```
 
 ### When a single BPMN File Is Changed, auto-migrate: true, migration jobs are created
 ```text
-08:09.491 INFO  [main] c.p.b.s.s.i.BpmnSyncServiceImpl -- Starting BPMN Deployment for TestDeployment, version: v3
-08:09.492 DEBUG [main] c.p.d.l.s.i.DbLockServiceImpl -- Attempting to acquire lock for lockType = BPMN, and lockVersion = v3
-08:09.492 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK(lock_type, lock_version, hostname) values (('B'), ('v3'), ('gentoo.lan'))
+23:45.713 DEBUG [main] o.o.b.t.SampleTask -- SampleTask started and stopped.
+23:45.847 TRACE [awaitility-thread] o.o.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:34637/oauth2/token, scope: openid, username: user
+23:45.861 INFO  [main] o.o.b.s.s.i.BpmnSyncServiceImpl -- Starting BPMN Deployment for TestDeployment, version: v3
+23:45.861 DEBUG [main] o.o.d.l.s.i.DbLockServiceImpl -- Attempting to acquire lock for lockType = BPMN, and lockVersion = v3
+23:45.862 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK(lock_type, lock_version, hostname) values (('B'), ('v3'), ('gentoo.lan'))
 RETURNING *
-08:09.492 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: select lock_version, lock_acquired_on from DB_LOCK_LATEST where lock_type = ('B')
-08:09.493 DEBUG [main] c.p.d.l.s.i.DbLockServiceImpl -- Acquired lock id = 5 for lockType = BPMN, and lockVersion = v3.
-08:09.493 INFO  [main] c.p.b.s.s.i.BpmnSyncServiceImpl -- Will synchronize 1 BPMN files, for TestDeployment, bpmnVersion: v3
-08:09.494 TRACE [main] c.p.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:33095/oauth2/token, scope: openid, username: user
-08:09.532 INFO  [reactor-http-epoll-2] c.p.b.s.s.i.BpmnSyncServiceImpl -- BPMN deployment for TestDeployment, version v3 has been completed. Deployed BPMN count: 1
-08:09.532 DEBUG [reactor-http-epoll-2] c.p.b.s.s.i.BpmnSyncServiceImpl -- Deployed BPMN Files and Their Versions follows:
-08:09.532 DEBUG [reactor-http-epoll-2] c.p.b.s.s.i.BpmnSyncServiceImpl -- Version: 3, BPMN: SampleBpmn.bpmn
-08:09.533 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: select count(*) from DB_LOCK_LATEST where lock_type = ('B')
-08:09.533 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: update DB_LOCK_LATEST T set lock_version = L.lock_version, hostname = L.hostname, lock_acquired_on = L.created_on from DB_LOCK L where L.id = ('5'::int4) and T.lock_type = L.lock_type
-08:09.534 TRACE [main] c.p.d.l.s.i.DbLockServiceImpl -- Updated LatestLock using lockId = 5
-08:09.534 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK_HISTORY (lock_id, lock_type, lock_version, hostname, lock_acquired_on) select id, lock_type, lock_version, hostname, created_on from DB_LOCK where DB_LOCK.id = ('5'::int4)
-08:09.535 TRACE [main] c.p.d.l.u.JdbcHelper -- Executing SQL: delete from DB_LOCK where id = ('5'::int4) and lock_type = ('B')
-08:09.536 INFO  [main] c.p.d.l.s.i.DbLockServiceImpl -- Released lock after 0 seconds. lockId = 5, and lockType = BPMN
-08:09.536 TRACE [main] c.p.d.l.s.i.DbLockServiceImpl -- Cancelling auto lock release timer for lock id = 5, type = BPMN
-08:09.536 INFO  [main] c.p.b.s.s.i.BpmnMigrationServiceImpl -- Starting BPMN migration for 1 deployed BPMNs.
-08:09.537 TRACE [main] c.p.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:33095/oauth2/token, scope: openid, username: user
-08:09.569 DEBUG [reactor-http-epoll-2] c.p.b.s.s.i.BpmnMigrationServiceImpl -- Previous version's process definition id: Sample_BPMN:2:7f40b8cf-79a4-11ef-a96e-0a0027000000
-08:09.569 TRACE [reactor-http-epoll-2] c.p.b.s.s.i.BpmnMigrationServiceImpl -- Getting process instance count for process definition id: Sample_BPMN:2:7f40b8cf-79a4-11ef-a96e-0a0027000000
-08:09.570 TRACE [reactor-http-epoll-2] c.p.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:33095/oauth2/token, scope: openid, username: user
-08:09.583 TRACE [reactor-http-epoll-2] c.p.b.s.s.i.BpmnMigrationServiceImpl -- There are 1 process instances for Sample_BPMN version 2
-08:09.583 TRACE [reactor-http-epoll-2] c.p.b.s.s.i.BpmnMigrationServiceImpl -- Generating migration plan for migrating Sample_BPMN process instances from version 2 to 3
-08:09.585 TRACE [reactor-http-epoll-2] c.p.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:33095/oauth2/token, scope: openid, username: user
-08:09.634 DEBUG [reactor-http-epoll-2] c.p.b.s.s.i.BpmnMigrationServiceImpl -- Executing migration async for migrating Sample_BPMN process instances from version 2 to 3
-08:09.634 TRACE [reactor-http-epoll-2] c.p.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:33095/oauth2/token, scope: openid, username: user
-08:09.768 DEBUG [reactor-http-epoll-2] c.p.b.s.s.i.BpmnMigrationServiceImpl -- Migration Async Execution initiated for Sample_BPMN version 2 to 3. Details: ExecuteMigrationPlanAsyncResponse(id=7fc8385b-79a4-11ef-a96e-0a0027000000, type=instance-migration, totalJobs=1, jobsCreated=0, batchJobsPerSeed=100, invocationsPerBatchJob=1, seedJobDefinitionId=7fc922bc-79a4-11ef-a96e-0a0027000000, monitorJobDefinitionId=7fc922bd-79a4-11ef-a96e-0a0027000000, batchJobDefinitionId=7fc922be-79a4-11ef-a96e-0a0027000000, suspended=false, tenantId=null, createUserId=null, startTime=2024-09-23T15:08:09.676+0300, executionStartTime=null)
-08:09.777 INFO  [main] c.p.b.s.s.i.BpmnMigrationServiceImpl -- BPMN Migration completed, total async jobs created: 1. Use Camunda Cockpit for checking job completions.
-08:09.784 DEBUG [HikariPool-1 connection adder] o.t.c.JdbcDatabaseContainer -- Trying to create JDBC connection using org.postgresql.Driver to jdbc:postgresql://localhost:9219/test?loggerLevel=OFF with properties: {password=test, user=test}
-08:09.881 TRACE [awaitility-thread] c.p.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:33095/oauth2/token, scope: openid, username: user
-08:09.997 TRACE [awaitility-thread] c.p.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:33095/oauth2/token, scope: openid, username: user
+23:45.863 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: select lock_version, lock_acquired_on from DB_LOCK_LATEST where lock_type = ('B')
+23:45.864 DEBUG [main] o.o.d.l.s.i.DbLockServiceImpl -- Acquired lock id = 5 for lockType = BPMN, and lockVersion = v3.
+23:45.864 INFO  [main] o.o.b.s.s.i.BpmnSyncServiceImpl -- Will synchronize 2 BPMN files, for TestDeployment, bpmnVersion: v3
+23:45.865 TRACE [main] o.o.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:34637/oauth2/token, scope: openid, username: user
+23:45.935 INFO  [reactor-http-epoll-2] o.o.b.s.s.i.BpmnSyncServiceImpl -- BPMN deployment for TestDeployment, version v3 has been completed. Deployed BPMN count: 2
+23:45.936 DEBUG [reactor-http-epoll-2] o.o.b.s.s.i.BpmnSyncServiceImpl -- Deployed BPMN Files and Their Versions follows:
+23:45.936 DEBUG [reactor-http-epoll-2] o.o.b.s.s.i.BpmnSyncServiceImpl -- Version: 1, BPMN: DummyBpmn.bpmn
+23:45.936 DEBUG [reactor-http-epoll-2] o.o.b.s.s.i.BpmnSyncServiceImpl -- Version: 3, BPMN: SampleBpmn.bpmn
+23:45.936 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: select count(*) from DB_LOCK_LATEST where lock_type = ('B')
+23:45.937 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: update DB_LOCK_LATEST T set lock_version = L.lock_version, hostname = L.hostname, lock_acquired_on = L.created_on from DB_LOCK L where L.id = ('5'::int4) and T.lock_type = L.lock_type
+23:45.938 TRACE [main] o.o.d.l.s.i.DbLockServiceImpl -- Updated LatestLock using lockId = 5
+23:45.939 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: insert into DB_LOCK_HISTORY (lock_id, lock_type, lock_version, hostname, lock_acquired_on) select id, lock_type, lock_version, hostname, created_on from DB_LOCK where DB_LOCK.id = ('5'::int4)
+23:45.940 TRACE [main] o.o.d.l.u.JdbcHelper -- Executing SQL: delete from DB_LOCK where id = ('5'::int4) and lock_type = ('B')
+23:45.941 INFO  [main] o.o.d.l.s.i.DbLockServiceImpl -- Released lock after 0 seconds. lockId = 5, and lockType = BPMN
+23:45.942 TRACE [main] o.o.d.l.s.i.DbLockServiceImpl -- Cancelling auto lock release timer for lock id = 5, type = BPMN
+23:45.942 INFO  [main] o.o.b.s.s.i.BpmnMigrationServiceImpl -- Starting BPMN migration for 2 deployed BPMNs.
+23:45.942 DEBUG [main] o.o.b.s.s.i.BpmnMigrationServiceImpl -- Skipping migration of Dummy_BPMN from version 0 to 1, because no previous process definition exists.
+23:45.943 TRACE [main] o.o.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:34637/oauth2/token, scope: openid, username: user
+23:45.975 DEBUG [reactor-http-epoll-2] o.o.b.s.s.i.BpmnMigrationServiceImpl -- Previous version's process definition id: Sample_BPMN:2:b4f1fbd3-1816-11f0-a4d9-1a5d066173a7
+23:45.975 TRACE [reactor-http-epoll-2] o.o.b.s.s.i.BpmnMigrationServiceImpl -- Getting process instance count for process definition id: Sample_BPMN:2:b4f1fbd3-1816-11f0-a4d9-1a5d066173a7
+23:45.977 TRACE [reactor-http-epoll-2] o.o.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:34637/oauth2/token, scope: openid, username: user
+23:45.992 TRACE [reactor-http-epoll-2] o.o.b.s.s.i.BpmnMigrationServiceImpl -- There are 1 process instances for Sample_BPMN version 2
+23:45.992 TRACE [reactor-http-epoll-2] o.o.b.s.s.i.BpmnMigrationServiceImpl -- Generating migration plan for migrating Sample_BPMN process instances from version 2 to 3
+23:45.993 TRACE [reactor-http-epoll-2] o.o.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:34637/oauth2/token, scope: openid, username: user
+23:46.058 DEBUG [reactor-http-epoll-2] o.o.b.s.s.i.BpmnMigrationServiceImpl -- Executing migration async for migrating Sample_BPMN process instances from version 2 to 3
+23:46.060 TRACE [reactor-http-epoll-2] o.o.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:34637/oauth2/token, scope: openid, username: user
+23:46.184 DEBUG [reactor-http-epoll-2] o.o.b.s.s.i.BpmnMigrationServiceImpl -- Migration Async Execution initiated for Sample_BPMN version 2 to 3. Details: ExecuteMigrationPlanAsyncResponse(id=b57b0201-1816-11f0-a4d9-1a5d066173a7, type=instance-migration, totalJobs=1, jobsCreated=0, batchJobsPerSeed=100, invocationsPerBatchJob=1, seedJobDefinitionId=b57b9e42-1816-11f0-a4d9-1a5d066173a7, monitorJobDefinitionId=b57b9e43-1816-11f0-a4d9-1a5d066173a7, batchJobDefinitionId=b57b9e44-1816-11f0-a4d9-1a5d066173a7, suspended=false, tenantId=null, createUserId=null, startTime=2025-04-13T06:23:46.116+0300, executionStartTime=null)
+23:46.190 INFO  [main] o.o.b.s.s.i.BpmnMigrationServiceImpl -- BPMN Migration completed, total async jobs created: 1. Use Camunda Cockpit for checking job completions.
+23:46.293 TRACE [awaitility-thread] o.o.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:34637/oauth2/token, scope: openid, username: user
 ```
 
 ## Version History
@@ -245,3 +254,5 @@ RETURNING *
 ### 1.1.0
 - Added Web Client Starters to the autoconfiguration afterName.
 - Added objectMapper bean as a dependency to the autoconfiguration
+### 1.1.1
+- Initial open source release, replacing pia with camunda7

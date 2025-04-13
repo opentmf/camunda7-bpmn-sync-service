@@ -5,25 +5,12 @@
     </encoder>
   </appender>
 
-  <logger name="org" level="INFO" />
-  <logger name="com" level="INFO" />
-  <logger name="javax" level="INFO" />
-  <logger name="reactor" level="INFO" />
-  <logger name="io" level="INFO" />
-
-  <logger name="org.springframework" level="INFO" />
-  <logger name="reactor.netty.http.client" level="WARN"/>
-  <logger name="org.zalando.logbook" level="INFO" />
-
   <logger name="org.camunda" level="INFO" />
-  <logger name="com.pia" level="TRACE" />
-  <logger name="com.pia.sh.client.token" level="DEBUG" />
-  <logger name="com.pia.sh.db.lock" level="DEBUG" />
-  <logger name="com.pia.security.jwt" level="INFO" />
-
+  <logger name="org.opentmf" level="TRACE" />
   <logger name="org.mockserver" level="WARN" />
+  <logger name="reactor.netty.http.client" level="WARN"/>
 
-  <root level="TRACE">
+  <root level="INFO">
     <appender-ref ref="STDOUT" />
   </root>
 </configuration>

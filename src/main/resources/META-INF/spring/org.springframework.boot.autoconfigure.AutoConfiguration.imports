@@ -1,1 +1,1 @@
-com.pia.bpmn.sync.config.BpmnSyncAutoConfiguration
+org.opentmf.bpmn.sync.config.BpmnSyncAutoConfiguration
