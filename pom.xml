@@ -8,7 +8,7 @@
   </parent>
   <groupId>org.opentmf.camunda</groupId>
   <artifactId>camunda7-bpmn-sync-service</artifactId>
-  <version>1.1.1-SNAPSHOT</version>
+  <version>1.1.1</version>
 
   <description>
     Synchronizes the BPMNs to Camunda 7 on app startup and if requested,
@@ -369,7 +369,7 @@
     <url>https://github.com/opentmf/camunda7-bpmn-sync-service</url>
     <connection>scm:git:git@github.com:opentmf/camunda7-bpmn-sync-service.git</connection>
     <developerConnection>scm:git:git@github.com:opentmf/camunda7-bpmn-sync-service.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>camunda7-bpmn-sync-service-1.1.1</tag>
   </scm>
 
 </project>
