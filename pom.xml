@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.4</version>
+    <version>3.5.3</version>
   </parent>
   <groupId>org.opentmf.camunda</groupId>
   <artifactId>camunda7-bpmn-sync-service</artifactId>
@@ -60,8 +60,8 @@
     <opentmf-basic-webclient-provider.version>1.1.1</opentmf-basic-webclient-provider.version>
 
     <camunda.version>7.23.0</camunda.version>
-    <archunit.version>1.4.0</archunit.version>
-    <testcontainers.version>1.20.6</testcontainers.version>
+    <archunit.version>1.4.1</archunit.version>
+    <testcontainers.version>1.21.3</testcontainers.version>
     <nexus-staging-plugin.version>1.7.0</nexus-staging-plugin.version>
     <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
     <mockserver-netty.version>5.15.0</mockserver-netty.version>
@@ -77,8 +77,8 @@
     <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
     <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
     <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
-    <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
-    <central-publishing-maven-plugin.version>0.7.0</central-publishing-maven-plugin.version>
+    <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
+    <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
 
     <sonar.java.source>${java.version}</sonar.java.source>
     <sonar.java.target>${java.version}</sonar.java.target>

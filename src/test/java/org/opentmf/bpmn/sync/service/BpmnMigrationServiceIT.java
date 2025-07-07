@@ -58,7 +58,7 @@ class BpmnMigrationServiceIT extends BaseIT {
 
     try (MockedStatic<ResourceUtil> mock = Mockito.mockStatic(ResourceUtil.class)) {
 
-      mock.when(() -> ResourceUtil.getName(any())).thenCallRealMethod();
+      mock.when(() -> ResourceUtil.getResourceNameWithFolder(any())).thenCallRealMethod();
       bpmnSyncProperties.setDeploymentName("TestDeployment");
 
       // initial deployment

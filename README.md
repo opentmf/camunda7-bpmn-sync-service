@@ -61,8 +61,8 @@ In your application.yaml, specify the BPMN Sync Properties:
 opentmf:
   bpmn-sync:
     enabled: true
-    deployment-name: UC-SOA
-    bpmn-version: 1.0
+    deployment-name: MyApp
+    bpmn-version: 1.0.0
     auto-migrate: true
     client: default
 ```
@@ -256,3 +256,5 @@ RETURNING *
 - Added objectMapper bean as a dependency to the autoconfiguration
 ### 1.1.1
 - Initial open source release, replacing pia with camunda7
+### 1.1.2
+- Fixes the resource name finding logic when the BPMN resides within a jar.

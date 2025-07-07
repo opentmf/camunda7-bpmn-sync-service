@@ -1,9 +1,9 @@
 package org.opentmf.bpmn.sync.util;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 import lombok.Generated;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.lang.NonNull;
@@ -11,6 +11,7 @@ import org.springframework.lang.NonNull;
 /**
  * @author Gokhan Demir
  */
+@Slf4j
 public final class ResourceUtil {
 
   @Generated
@@ -26,16 +27,15 @@ public final class ResourceUtil {
   }
 
   @NonNull
-  public static String getName(Resource resource) {
+  public static String getResourceNameWithFolder(@NonNull Resource r) {
     try {
-      String path = resource.getFile().getPath();
-      String bpmn = "bpmn" + File.separator;
-      int i = path.lastIndexOf(bpmn);
-      return i >= 0
-          ? path.substring(i + bpmn.length())
-          : Objects.requireNonNull(resource.getFilename());
-    } catch (IOException ignored) {
-      return "Resource";
+      String uri = r.getURI().toString().replace('\\', '/');   // class path form
+      int idx = uri.lastIndexOf("/bpmn/");
+      return (idx >= 0) ? uri.substring(idx + "/bpmn/".length())
+          : Objects.requireNonNull(r.getFilename());
+    } catch (IOException e) {
+      log.warn("Could not extract resource name with folder for {}", r, e);
+      return Objects.requireNonNullElse(r.getFilename(), "Resource");
     }
   }
 }

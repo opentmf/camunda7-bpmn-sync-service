@@ -129,7 +129,7 @@ public class CamundaClientImpl implements CamundaClient {
     builder.part("deployment-source", "BPMN Sync Service");
     builder.part("deploy-changed-only", "true");
     for (Resource bpmn : bpmnFiles) {
-      builder.part(ResourceUtil.getName(bpmn), bpmn);
+      builder.part(ResourceUtil.getResourceNameWithFolder(bpmn), bpmn);
     }
     return builder.build();
   }
