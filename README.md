@@ -256,5 +256,5 @@ RETURNING *
 - Added objectMapper bean as a dependency to the autoconfiguration
 ### 1.1.1
 - Initial open source release, replacing pia with camunda7
-### 1.1.2
+### 1.1.3
 - Fixes the resource name finding logic when the BPMN resides within a jar.
