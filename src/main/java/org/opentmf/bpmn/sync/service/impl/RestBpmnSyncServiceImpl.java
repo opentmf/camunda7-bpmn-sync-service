@@ -1,6 +1,6 @@
 package org.opentmf.bpmn.sync.service.impl;
 
-import org.opentmf.bpmn.sync.client.api.CamundaClient;
+import org.opentmf.bpmn.sync.client.api.CamundaRestClient;
 import org.opentmf.bpmn.sync.config.BpmnSyncProperties;
 import org.opentmf.bpmn.sync.model.CamundaDeploymentResponse;
 import org.opentmf.bpmn.sync.model.ProcessDefinition;
@@ -21,11 +21,11 @@ import org.springframework.util.Assert;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class BpmnSyncServiceImpl implements BpmnSyncService {
+public class RestBpmnSyncServiceImpl implements BpmnSyncService {
 
   private final BpmnSyncProperties bpmnSyncProperties;
   private final DbLockService dbLockService;
-  private final CamundaClient camundaClient;
+  private final CamundaRestClient camundaClient;
   private final BpmnMigrationService bpmnMigrationService;
 
   @Override
@@ -42,8 +42,7 @@ public class BpmnSyncServiceImpl implements BpmnSyncService {
     return deploymentResponse;
   }
 
-  private CamundaDeploymentResponse doEnsureBpmnConsistency()
-      throws DbLockException {
+  private CamundaDeploymentResponse doEnsureBpmnConsistency() throws DbLockException {
     Resource[] bpmnFiles = ensurePropertiesProvided();
     CamundaDeploymentResponse deploymentResponse = null;
     boolean lockReleased = false;
@@ -92,10 +91,9 @@ public class BpmnSyncServiceImpl implements BpmnSyncService {
     log.info("Will synchronize {} BPMN files, for {}, bpmnVersion: {}", bpmnFiles.length,
         bpmnSyncProperties.getDeploymentName(), bpmnSyncProperties.getBpmnVersion());
 
-    return camundaClient
-        .syncBpmnFiles(bpmnSyncProperties.getDeploymentName(), bpmnFiles)
-        .doOnNext(this::logDeploymentResponse)
-        .block();
+    var response = camundaClient.syncBpmnFiles(bpmnSyncProperties.getDeploymentName(), bpmnFiles);
+    logDeploymentResponse(response);
+    return response;
   }
 
   private void logDeploymentResponse(CamundaDeploymentResponse response) {

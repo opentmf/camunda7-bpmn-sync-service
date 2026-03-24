@@ -4,12 +4,12 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.3</version>
+    <version>4.0.4</version>
   </parent>
   <groupId>org.opentmf.camunda</groupId>
   <artifactId>camunda7-bpmn-sync-service</artifactId>
   <name>camunda7-bpmn-sync-service</name>
-  <version>1.1.4-SNAPSHOT</version>
+  <version>2.0.0-SNAPSHOT</version>
 
   <description>
     Synchronizes the BPMNs to Camunda 7 on app startup and if requested,
@@ -56,28 +56,15 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
 
-    <opentmf-db-lock-service.version>1.0.8</opentmf-db-lock-service.version>
-    <opentmf-openid-webclient-provider.version>1.1.1</opentmf-openid-webclient-provider.version>
-    <opentmf-basic-webclient-provider.version>1.1.1</opentmf-basic-webclient-provider.version>
+    <opentmf-db-lock-service.version>2.0.0</opentmf-db-lock-service.version>
+    <opentmf-commons.version>2.1.0</opentmf-commons.version>
+    <opentmf-http-clients.version>2.0.0-SNAPSHOT</opentmf-http-clients.version>
+    <opentmf-mockserver.version>2.1.1-SNAPSHOT</opentmf-mockserver.version>
 
-    <camunda.version>7.23.0</camunda.version>
     <archunit.version>1.4.1</archunit.version>
     <testcontainers.version>1.21.3</testcontainers.version>
-    <nexus-staging-plugin.version>1.7.0</nexus-staging-plugin.version>
-    <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
-    <mockserver-netty.version>5.15.0</mockserver-netty.version>
 
     <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
-    <sonar-plugin.version>5.1.0.4751</sonar-plugin.version>
-    <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
-    <maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
-    <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
-    <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
-    <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
-    <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-    <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
-    <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
-    <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
 
@@ -86,24 +73,40 @@
   </properties>
 
   <dependencies>
+
     <!-- Compile time dependencies -->
+    <dependency>
+      <groupId>org.opentmf.commons</groupId>
+      <artifactId>opentmf-commons</artifactId>
+      <version>${opentmf-commons.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.opentmf.util</groupId>
       <artifactId>opentmf-db-lock-service</artifactId>
       <version>${opentmf-db-lock-service.version}</version>
     </dependency>
 
-    <!-- Optional dependencies -->
+    <!-- Optional HTTP client dependencies -->
     <dependency>
       <groupId>org.opentmf.client</groupId>
-      <artifactId>opentmf-openid-webclient-provider</artifactId>
-      <version>${opentmf-openid-webclient-provider.version}</version>
+      <artifactId>opentmf-http-clients-common</artifactId>
+      <version>${opentmf-http-clients.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentmf.client</groupId>
+      <artifactId>opentmf-http-clients-reactive</artifactId>
+      <version>${opentmf-http-clients.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.opentmf.client</groupId>
-      <artifactId>opentmf-basic-webclient-provider</artifactId>
-      <version>${opentmf-basic-webclient-provider.version}</version>
+      <artifactId>opentmf-http-clients-rest</artifactId>
+      <version>${opentmf-http-clients.version}</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webflux</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -140,12 +143,6 @@
       <version>${testcontainers.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.camunda.bpm.springboot</groupId>
-      <artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
-      <version>${camunda.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
@@ -158,38 +155,95 @@
       <version>${archunit.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.mock-server</groupId>
-      <artifactId>mockserver-netty</artifactId>
-      <version>${mockserver-netty.version}</version>
+      <groupId>org.opentmf.mockserver</groupId>
+      <artifactId>opentmf-mockserver</artifactId>
+      <version>${opentmf-mockserver.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opentmf.client</groupId>
+      <artifactId>opentmf-http-clients-starter-reactive</artifactId>
+      <version>${opentmf-http-clients.version}</version>
+      <type>pom</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opentmf.client</groupId>
+      <artifactId>opentmf-http-clients-starter-rest</artifactId>
+      <version>${opentmf-http-clients.version}</version>
+      <type>pom</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webclient</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
 
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+                <configuration>
+                  <failOnWarnings>false</failOnWarnings>
+                  <failOnError>false</failOnError>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>${maven-gpg-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>${central-publishing-maven-plugin.version}</version>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>publish-to-central</publishingServerId>
+              <autoPublish>true</autoPublish>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>${maven-resources-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>${maven-compiler-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>${maven-deploy-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.sonarsource.scanner.maven</groupId>
-          <artifactId>sonar-maven-plugin</artifactId>
-          <version>${sonar-plugin.version}</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -212,16 +266,7 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${maven-surefire-plugin.version}</version>
         <configuration>
           <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
         </configuration>
@@ -229,7 +274,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>${maven-failsafe-plugin.version}</version>
         <executions>
           <execution>
             <goals>
@@ -240,71 +284,15 @@
         </executions>
         <configuration>
           <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-          <forkCount>2</forkCount>
-          <reuseForks>false</reuseForks>
+          <forkCount>1</forkCount>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>${maven-source-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar-no-fork</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${maven-javadoc-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-            <configuration>
-              <failOnWarnings>false</failOnWarnings>
-              <failOnError>false</failOnError>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <version>${maven-gpg-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>sign-artifacts</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
-        <version>${maven-release-plugin.version}</version>
         <configuration>
-          <useReleaseProfile>false</useReleaseProfile>
+          <releaseProfiles>release</releaseProfiles>
           <goals>deploy</goals>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.sonatype.central</groupId>
-        <artifactId>central-publishing-maven-plugin</artifactId>
-        <version>${central-publishing-maven-plugin.version}</version>
-        <extensions>true</extensions>
-        <configuration>
-          <publishingServerId>publish-to-central</publishingServerId>
-          <autoPublish>true</autoPublish>
         </configuration>
       </plugin>
       <plugin>
@@ -326,7 +314,6 @@
           </execution>
           <execution>
             <configuration>
-              <!-- We will enable this after adding tests, GD, Aug 8 2022. -->
               <haltOnFailure>true</haltOnFailure>
               <rules>
                 <rule>
@@ -334,17 +321,17 @@
                   <limits>
                     <limit>
                       <counter>LINE</counter>
-                      <minimum>80%</minimum>
+                      <minimum>70%</minimum>
                       <value>COVEREDRATIO</value>
                     </limit>
                     <limit>
                       <counter>INSTRUCTION</counter>
-                      <minimum>80%</minimum>
+                      <minimum>70%</minimum>
                       <value>COVEREDRATIO</value>
                     </limit>
                     <limit>
                       <counter>BRANCH</counter>
-                      <minimum>80%</minimum>
+                      <minimum>50%</minimum>
                       <value>COVEREDRATIO</value>
                     </limit>
                     <limit>

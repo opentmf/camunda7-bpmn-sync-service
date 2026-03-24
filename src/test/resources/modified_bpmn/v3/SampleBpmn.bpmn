@@ -7,7 +7,7 @@
     <bpmn:endEvent id="Event_0mb7hlf">
       <bpmn:incoming>Flow_10arrvq</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:serviceTask id="sampleTask" name="Sample Task" camunda:class="org.opentmf.bpmn.task.SampleTask">
+    <bpmn:serviceTask id="sampleTask" name="Sample Task" camunda:type="external" camunda:topic="sampleTopic">
       <bpmn:incoming>Flow_10lhjsk</bpmn:incoming>
       <bpmn:outgoing>Flow_18g0vxs</bpmn:outgoing>
     </bpmn:serviceTask>

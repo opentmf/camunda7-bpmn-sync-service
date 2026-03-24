@@ -10,8 +10,22 @@ opentmf:
     deployment-name: TestDeployment
     auto-migrate: false
     bpmn-version: v1
+    client-ref:
 
-  webclient:
-    openid:
-      client1:
-        connection-provider-name: client1-provider-it
+  http-clients:
+    reactive:
+      client-type: netty
+      bearer-auth:
+        token-url: http://placeholder
+        form-data:
+          grant_type: client_credentials
+          client_id: client1
+          client_secret: client1Secret
+    rest:
+      client-type: jdk
+      bearer-auth:
+        token-url: http://placeholder
+        form-data:
+          grant_type: client_credentials
+          client_id: client1
+          client_secret: client1Secret

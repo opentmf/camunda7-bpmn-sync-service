@@ -57,22 +57,17 @@ public class BpmnSyncProperties {
   private boolean autoMigrate = false;
 
   /**
-   * The client id to use. This id is the prefix to the following exposed beans:
+   * The client-ref id to use. This id is the prefix to the following exposed beans:
    * <ul>
-   *   <li>webClient</li>
-   *   <li>tokenService</li>
-   *   <li>clientProperties</li>
+   *   <li>WebClient (or RestTemplate)</li>
+   *   <li>TokenService (or SyncTokenService)</li>
+   *   <li>ClientProperties</li>
    * </ul>
    * <p>
-   *   For example, if the client value is <strong>sample</strong> then we will assume the
-   *   following three beans are exposed:
-   *   <ul>
-   *     <li>(WebClient) sampleWebClient</li>
-   *     <li>(TokenService) sampleTokenService</li>
-   *     <li>(BaseClientProperties) sampleClientProperties</li>
-   *   </ul>
+   *   For example, if the client-ref value is <strong>openid</strong> then we will look up
+   *   beans named <strong>openidWebClient</strong> or <strong>openidRestTemplate</strong>, etc.
    * </p>
    */
   @NotEmpty
-  private String client;
+  private String clientRef;
 }

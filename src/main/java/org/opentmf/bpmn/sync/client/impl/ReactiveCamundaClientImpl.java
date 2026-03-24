@@ -1,13 +1,12 @@
 package org.opentmf.bpmn.sync.client.impl;
 
-import static org.opentmf.client.common.util.WebClientUtil.retry;
+import static org.opentmf.client.reactive.util.WebClientUtil.retry;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-import org.opentmf.bpmn.sync.client.api.CamundaClient;
+import org.opentmf.bpmn.sync.client.api.CamundaReactiveClient;
 import org.opentmf.bpmn.sync.config.CamundaProperties;
 import org.opentmf.bpmn.sync.exception.CamundaResponseException;
 import org.opentmf.bpmn.sync.model.CamundaDeploymentResponse;
-import org.opentmf.bpmn.sync.model.CamundaErrorResponse;
 import org.opentmf.bpmn.sync.model.ExecuteMigrationPlanAsyncResponse;
 import org.opentmf.bpmn.sync.model.ExecuteMigrationPlanRequest;
 import org.opentmf.bpmn.sync.model.GenerateMigrationPlanRequest;
@@ -15,36 +14,36 @@ import org.opentmf.bpmn.sync.model.MigrationPlan;
 import org.opentmf.bpmn.sync.model.ObjectCount;
 import org.opentmf.bpmn.sync.model.ProcessDefinition;
 import org.opentmf.bpmn.sync.util.ResourceUtil;
-import org.opentmf.client.common.model.BaseClientProperties;
-import org.opentmf.client.common.service.api.TokenService;
+import org.opentmf.client.common.exception.OpenTmfClientResponseException;
+import org.opentmf.client.common.model.ClientProperties;
+import org.opentmf.client.reactive.service.api.TokenService;
 import java.net.URI;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.lang.NonNull;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
+ * Reactive {@link CamundaReactiveClient} implementation backed by {@link WebClient}.
+ *
  * @author Gokhan Demir
  */
 @RequiredArgsConstructor
 @Slf4j
-public class CamundaClientImpl implements CamundaClient {
+public class ReactiveCamundaClientImpl implements CamundaReactiveClient {
 
   private final WebClient webClient;
   private final TokenService tokenService;
-  private final BaseClientProperties clientProperties;
+  private final ClientProperties clientProperties;
   private final CamundaProperties camundaProperties;
 
   @Override
@@ -84,8 +83,9 @@ public class CamundaClientImpl implements CamundaClient {
             .contentType(MediaType.MULTIPART_FORM_DATA)
             .headers(headers -> headers.set(AUTHORIZATION, getAuth(token)))
             .body(BodyInserters.fromMultipartData(getMultipartRequest(deploymentName, bpmnFiles)))
-            .retrieve().onStatus(HttpStatusCode::isError, CamundaClientImpl::handleError)
+            .retrieve()
             .bodyToMono(CamundaDeploymentResponse.class)
+            .onErrorMap(OpenTmfClientResponseException.class, CamundaResponseException::new)
             .retryWhen(retry(clientProperties.getNumRetries(),
                 Duration.ofMillis(clientProperties.getRetryWaitMillis()), 0)));
   }
@@ -124,7 +124,7 @@ public class CamundaClientImpl implements CamundaClient {
   @NonNull
   private MultiValueMap<String, HttpEntity<?>> getMultipartRequest(String deploymentName,
       Resource[] bpmnFiles) {
-    MultipartBodyBuilder builder = new MultipartBodyBuilder();
+    var builder = new org.springframework.http.client.MultipartBodyBuilder();
     builder.part("deployment-name", deploymentName);
     builder.part("deployment-source", "BPMN Sync Service");
     builder.part("deploy-changed-only", "true");
@@ -140,8 +140,8 @@ public class CamundaClientImpl implements CamundaClient {
         .uri(uri)
         .headers(headers -> headers.set(AUTHORIZATION, getAuth(token)))
         .retrieve()
-        .onStatus(HttpStatusCode::isError, CamundaClientImpl::handleError)
         .bodyToFlux(t)
+        .onErrorMap(OpenTmfClientResponseException.class, CamundaResponseException::new)
         .retryWhen(retry(clientProperties.getNumRetries(),
             Duration.ofMillis(clientProperties.getRetryWaitMillis())));
   }
@@ -152,8 +152,8 @@ public class CamundaClientImpl implements CamundaClient {
         .uri(uri)
         .headers(headers -> headers.set(AUTHORIZATION, getAuth(token)))
         .retrieve()
-        .onStatus(HttpStatusCode::isError, CamundaClientImpl::handleError)
         .bodyToMono(t)
+        .onErrorMap(OpenTmfClientResponseException.class, CamundaResponseException::new)
         .retryWhen(retry(clientProperties.getNumRetries(),
             Duration.ofMillis(clientProperties.getRetryWaitMillis())));
   }
@@ -170,20 +170,9 @@ public class CamundaClientImpl implements CamundaClient {
         .headers(headers -> headers.set(AUTHORIZATION, getAuth(token)))
         .bodyValue(body)
         .retrieve()
-        .onStatus(HttpStatusCode::isError, CamundaClientImpl::handleError)
         .bodyToMono(t)
+        .onErrorMap(OpenTmfClientResponseException.class, CamundaResponseException::new)
         .retryWhen(retry(clientProperties.getNumRetries(),
             Duration.ofMillis(clientProperties.getRetryWaitMillis())));
-  }
-
-  public static Mono<Throwable> handleError(ClientResponse clientResponse) {
-    var request = clientResponse.request();
-    var httpStatus = clientResponse.statusCode();
-    log.debug("Handling {} for {} {}", httpStatus, request.getMethod(), request.getURI());
-    return clientResponse
-        .bodyToMono(CamundaErrorResponse.class)
-        .doOnNext(error -> log.error("Camunda Error Details: {}", error))
-        .switchIfEmpty(Mono.defer(() -> Mono.error(new CamundaResponseException(httpStatus, null))))
-        .map(error -> new CamundaResponseException(httpStatus, error));
   }
 }
