@@ -18,7 +18,7 @@ import org.opentmf.bpmn.sync.util.ResourceUtil;
 import org.opentmf.client.common.exception.OpenTmfClientResponseException;
 import org.opentmf.client.common.model.ClientProperties;
 import org.opentmf.client.rest.service.api.SyncTokenService;
-import org.opentmf.client.rest.util.RestTemplateUtil;
+import org.opentmf.client.rest.util.SyncClientUtil;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -78,7 +78,7 @@ public class RestCamundaClientImpl implements RestCamundaClient {
   public CamundaDeploymentResponse syncBpmnFiles(String deploymentName, Resource[] bpmnFiles) {
     try {
       String token = tokenService.getToken();
-      return RestTemplateUtil.executeWithRetry(
+      return SyncClientUtil.executeWithRetry(
           () -> doMultipartPost(deploymentName, bpmnFiles, token),
           clientProperties.getNumRetries(),
           clientProperties.getRetryWaitDuration());
@@ -90,7 +90,7 @@ public class RestCamundaClientImpl implements RestCamundaClient {
   private <T> T doGet(URI uri, Class<T> responseType) {
     try {
       String token = tokenService.getToken();
-      return RestTemplateUtil.executeWithRetry(() ->
+      return SyncClientUtil.executeWithRetry(() ->
           restClient.get()
               .uri(uri)
               .headers(h -> h.setBearerAuth(token))
@@ -106,7 +106,7 @@ public class RestCamundaClientImpl implements RestCamundaClient {
   private <T> T doGet(URI uri, ParameterizedTypeReference<T> responseType) {
     try {
       String token = tokenService.getToken();
-      return RestTemplateUtil.executeWithRetry(() ->
+      return SyncClientUtil.executeWithRetry(() ->
           restClient.get()
               .uri(uri)
               .headers(h -> h.setBearerAuth(token))
@@ -122,7 +122,7 @@ public class RestCamundaClientImpl implements RestCamundaClient {
   private <T> T doPost(URI uri, Object body, Class<T> responseType) {
     try {
       String token = tokenService.getToken();
-      return RestTemplateUtil.executeWithRetry(() ->
+      return SyncClientUtil.executeWithRetry(() ->
           restClient.post()
               .uri(uri)
               .headers(h -> h.setBearerAuth(token))

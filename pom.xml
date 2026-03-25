@@ -58,7 +58,7 @@
 
     <opentmf-db-lock-service.version>2.0.0</opentmf-db-lock-service.version>
     <opentmf-commons.version>2.1.0</opentmf-commons.version>
-    <opentmf-http-clients.version>2.0.0</opentmf-http-clients.version>
+    <opentmf-http-clients.version>2.1.0</opentmf-http-clients.version>
     <opentmf-mockserver.version>2.1.2</opentmf-mockserver.version>
 
     <archunit.version>1.4.1</archunit.version>
