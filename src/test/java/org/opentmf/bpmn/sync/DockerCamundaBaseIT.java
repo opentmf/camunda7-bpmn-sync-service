@@ -17,11 +17,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 import reactor.core.scheduler.Schedulers;
 
 /**
@@ -52,12 +49,13 @@ public abstract class DockerCamundaBaseIT {
     } else {
       token = ((SyncTokenService) tokenSvc).getToken();
     }
-    var headers = new HttpHeaders();
-    headers.setBearerAuth(token);
-    headers.setContentType(MediaType.APPLICATION_JSON);
-    new RestTemplate().exchange(
-        URI.create(camundaProperties.getBaseUrl()
-            + "/process-definition/" + processDefinitionId + "/start"),
-        HttpMethod.POST, new HttpEntity<>("{}", headers), String.class);
+    RestClient.create().post()
+        .uri(URI.create(camundaProperties.getBaseUrl()
+            + "/process-definition/" + processDefinitionId + "/start"))
+        .headers(h -> h.setBearerAuth(token))
+        .contentType(MediaType.APPLICATION_JSON)
+        .body("{}")
+        .retrieve()
+        .toBodilessEntity();
   }
 }

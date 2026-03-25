@@ -1,6 +1,6 @@
 package org.opentmf.bpmn.sync.service.impl;
 
-import org.opentmf.bpmn.sync.client.api.CamundaRestClient;
+import org.opentmf.bpmn.sync.client.api.RestCamundaClient;
 import org.opentmf.bpmn.sync.config.BpmnSyncProperties;
 import org.opentmf.bpmn.sync.model.CamundaDeploymentResponse;
 import org.opentmf.bpmn.sync.model.ProcessDefinition;
@@ -25,7 +25,7 @@ public class RestBpmnSyncServiceImpl implements BpmnSyncService {
 
   private final BpmnSyncProperties bpmnSyncProperties;
   private final DbLockService dbLockService;
-  private final CamundaRestClient camundaClient;
+  private final RestCamundaClient camundaClient;
   private final BpmnMigrationService bpmnMigrationService;
 
   @Override

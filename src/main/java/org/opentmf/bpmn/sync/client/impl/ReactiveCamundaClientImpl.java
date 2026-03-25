@@ -3,7 +3,7 @@ package org.opentmf.bpmn.sync.client.impl;
 import static org.opentmf.client.reactive.util.WebClientUtil.retry;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-import org.opentmf.bpmn.sync.client.api.CamundaReactiveClient;
+import org.opentmf.bpmn.sync.client.api.ReactiveCamundaClient;
 import org.opentmf.bpmn.sync.config.CamundaProperties;
 import org.opentmf.bpmn.sync.exception.CamundaResponseException;
 import org.opentmf.bpmn.sync.model.CamundaDeploymentResponse;
@@ -18,13 +18,12 @@ import org.opentmf.client.common.exception.OpenTmfClientResponseException;
 import org.opentmf.client.common.model.ClientProperties;
 import org.opentmf.client.reactive.service.api.TokenService;
 import java.net.URI;
-import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
-import org.springframework.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -33,13 +32,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Reactive {@link CamundaReactiveClient} implementation backed by {@link WebClient}.
+ * Reactive {@link ReactiveCamundaClient} implementation backed by {@link WebClient}.
  *
  * @author Gokhan Demir
  */
 @RequiredArgsConstructor
 @Slf4j
-public class ReactiveCamundaClientImpl implements CamundaReactiveClient {
+public class ReactiveCamundaClientImpl implements ReactiveCamundaClient {
 
   private final WebClient webClient;
   private final TokenService tokenService;
@@ -78,16 +77,26 @@ public class ReactiveCamundaClientImpl implements CamundaReactiveClient {
   @Override
   public Mono<CamundaDeploymentResponse> syncBpmnFiles(String deploymentName,
       Resource[] bpmnFiles) {
-    return tokenService.getToken()
-        .flatMap(token -> webClient.post().uri(deploymentURI())
-            .contentType(MediaType.MULTIPART_FORM_DATA)
-            .headers(headers -> headers.set(AUTHORIZATION, getAuth(token)))
-            .body(BodyInserters.fromMultipartData(getMultipartRequest(deploymentName, bpmnFiles)))
-            .retrieve()
-            .bodyToMono(CamundaDeploymentResponse.class)
-            .onErrorMap(OpenTmfClientResponseException.class, CamundaResponseException::new)
-            .retryWhen(retry(clientProperties.getNumRetries(),
-                Duration.ofMillis(clientProperties.getRetryWaitMillis()), 0)));
+    return tokenService
+        .getToken()
+        .flatMap(
+            token ->
+                webClient
+                    .post()
+                    .uri(deploymentURI())
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .headers(headers -> headers.set(AUTHORIZATION, getAuth(token)))
+                    .body(
+                        BodyInserters.fromMultipartData(
+                            getMultipartRequest(deploymentName, bpmnFiles)))
+                    .retrieve()
+                    .bodyToMono(CamundaDeploymentResponse.class)
+                    .onErrorMap(OpenTmfClientResponseException.class, CamundaResponseException::new)
+                    .retryWhen(
+                        retry(
+                            clientProperties.getNumRetries(),
+                            clientProperties.getRetryWaitDuration(),
+                            0)));
   }
 
   private String getAuth(String token) {
@@ -142,8 +151,8 @@ public class ReactiveCamundaClientImpl implements CamundaReactiveClient {
         .retrieve()
         .bodyToFlux(t)
         .onErrorMap(OpenTmfClientResponseException.class, CamundaResponseException::new)
-        .retryWhen(retry(clientProperties.getNumRetries(),
-            Duration.ofMillis(clientProperties.getRetryWaitMillis())));
+        .retryWhen(
+            retry(clientProperties.getNumRetries(), clientProperties.getRetryWaitDuration()));
   }
 
   private <T> Mono<T> getMonoResponse(URI uri, String token, Class<T> t) {
@@ -154,8 +163,8 @@ public class ReactiveCamundaClientImpl implements CamundaReactiveClient {
         .retrieve()
         .bodyToMono(t)
         .onErrorMap(OpenTmfClientResponseException.class, CamundaResponseException::new)
-        .retryWhen(retry(clientProperties.getNumRetries(),
-            Duration.ofMillis(clientProperties.getRetryWaitMillis())));
+        .retryWhen(
+            retry(clientProperties.getNumRetries(), clientProperties.getRetryWaitDuration()));
   }
 
   private <T> Mono<T> post(URI uri, Object body, String accessToken, Class<T> t) {
@@ -172,7 +181,7 @@ public class ReactiveCamundaClientImpl implements CamundaReactiveClient {
         .retrieve()
         .bodyToMono(t)
         .onErrorMap(OpenTmfClientResponseException.class, CamundaResponseException::new)
-        .retryWhen(retry(clientProperties.getNumRetries(),
-            Duration.ofMillis(clientProperties.getRetryWaitMillis())));
+        .retryWhen(
+            retry(clientProperties.getNumRetries(), clientProperties.getRetryWaitDuration()));
   }
 }

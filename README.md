@@ -227,34 +227,5 @@ RETURNING *
 23:46.293 TRACE [awaitility-thread] o.o.c.o.s.i.OpenidTokenServiceImpl -- Returning cached openid token for baseUrl: http://localhost:34637/oauth2/token, scope: openid, username: user
 ```
 
-## Version History
-### 1.0.0
-- Initial Release
-### 1.0.1
-- Simplifies configuration properties
-### 1.0.2
-- Updates dependency versions of pia-web-clients and pia-db-lock-service to their latest.
-### 1.0.3
-- Updates dependency versions of pia-web-clients and pia-db-lock-service to their latest.
-### 1.0.4
-- Updates dependency versions of pia-web-clients and pia-db-lock-service to their latest.
-### 1.0.5
-- Updates dependency version pia-db-lock-service to the backward incompatible 1.0.5
-- Fix: Skips migration if deployed BPMN is initial.
-### 1.0.6
-- Updates pia-db-lock-service version to 1.0.6
-- Updates Spring Boot version to 3.4.0
-### 1.0.7
-- Updates pia-db-lock-service version to 1.0.7
-- Fixed autoconfiguration conditionals.
-### 1.0.8
-- Fixed autoconfiguration conditionals.
-### 1.0.9
-- Updates to pia-web-clients 1.0.8, for fewer dependencies for the reactive WebClient.
-### 1.1.0
-- Added Web Client Starters to the autoconfiguration afterName.
-- Added objectMapper bean as a dependency to the autoconfiguration
-### 1.1.1
-- Initial open source release, replacing pia with camunda7
-### 1.1.3
-- Fixes the resource name finding logic when the BPMN resides within a jar.
+## Changelog
+See [CHANGELOG.md](CHANGELOG.md) for the full version history.

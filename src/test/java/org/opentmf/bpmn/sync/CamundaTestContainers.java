@@ -23,7 +23,7 @@ public class CamundaTestContainers {
   public CamundaTestContainers() {
     network = Network.newNetwork();
 
-    postgres = new PostgreSQLContainer<>("postgres:16.4-alpine")
+    postgres = new PostgreSQLContainer<>("postgres:18.3-alpine")
         .withNetwork(network)
         .withNetworkAliases("postgresql")
         .withDatabaseName("db")
@@ -31,7 +31,7 @@ public class CamundaTestContainers {
         .withPassword("test")
         .withInitScript("init-camunda-schema.sql");
 
-    mockServer = new GenericContainer<>("local/opentmf-mockserver:2.1.1-SNAPSHOT")
+    mockServer = new GenericContainer<>("ghcr.io/opentmf/opentmf-mockserver:2.1.2")
         .withNetwork(network)
         .withNetworkAliases("mockserver")
         .withExposedPorts(1080)

@@ -8,20 +8,21 @@ import org.opentmf.bpmn.sync.model.MigrationPlan;
 import org.opentmf.bpmn.sync.model.ObjectCount;
 import org.opentmf.bpmn.sync.model.ProcessDefinition;
 import org.springframework.core.io.Resource;
+import reactor.core.publisher.Mono;
 
 /**
  * @author Gokhan Demir
  */
-public interface CamundaRestClient {
+public interface ReactiveCamundaClient {
 
-  CamundaDeploymentResponse syncBpmnFiles(String deploymentName, Resource[] bpmnFiles);
+  Mono<CamundaDeploymentResponse> syncBpmnFiles(String deploymentName, Resource[] bpmnFiles);
 
-  ProcessDefinition getProcessDefinition(String key, int version);
+  Mono<ProcessDefinition> getProcessDefinition(String key, int version);
 
-  ObjectCount getProcessInstanceCount(String processDefinitionId);
+  Mono<ObjectCount> getProcessInstanceCount(String processDefinitionId);
 
-  MigrationPlan generateMigrationPlan(GenerateMigrationPlanRequest request);
+  Mono<MigrationPlan> generateMigrationPlan(GenerateMigrationPlanRequest request);
 
-  ExecuteMigrationPlanAsyncResponse executeMigrationPlanAsync(
+  Mono<ExecuteMigrationPlanAsyncResponse> executeMigrationPlanAsync(
       ExecuteMigrationPlanRequest request);
 }

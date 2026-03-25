@@ -6,7 +6,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
 /**
- * Integration test for BPMN sync using the REST (RestTemplate) client.
+ * Integration test for BPMN sync using the REST (RestClient) client.
  *
  * @author Gokhan Demir
  */

@@ -1,11 +1,10 @@
 package org.opentmf.bpmn.sync.client.impl;
 
 import java.net.URI;
-import java.time.Duration;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.opentmf.bpmn.sync.client.api.CamundaRestClient;
+import org.opentmf.bpmn.sync.client.api.RestCamundaClient;
 import org.opentmf.bpmn.sync.config.CamundaProperties;
 import org.opentmf.bpmn.sync.exception.CamundaResponseException;
 import org.opentmf.bpmn.sync.model.CamundaDeploymentResponse;
@@ -22,26 +21,22 @@ import org.opentmf.client.rest.service.api.SyncTokenService;
 import org.opentmf.client.rest.util.RestTemplateUtil;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
- * Synchronous {@link CamundaRestClient} implementation backed by {@link RestTemplate}.
+ * Synchronous {@link RestCamundaClient} implementation backed by {@link RestClient}.
  *
  * @author Gokhan Demir
  */
 @RequiredArgsConstructor
 @Slf4j
-public class RestCamundaClientImpl implements CamundaRestClient {
+public class RestCamundaClientImpl implements RestCamundaClient {
 
-  private final RestTemplate restTemplate;
+  private final RestClient restClient;
   private final SyncTokenService tokenService;
   private final ClientProperties clientProperties;
   private final CamundaProperties camundaProperties;
@@ -86,7 +81,7 @@ public class RestCamundaClientImpl implements CamundaRestClient {
       return RestTemplateUtil.executeWithRetry(
           () -> doMultipartPost(deploymentName, bpmnFiles, token),
           clientProperties.getNumRetries(),
-          Duration.ofMillis(clientProperties.getRetryWaitMillis()));
+          clientProperties.getRetryWaitDuration());
     } catch (OpenTmfClientResponseException e) {
       throw new CamundaResponseException(e);
     }
@@ -95,14 +90,14 @@ public class RestCamundaClientImpl implements CamundaRestClient {
   private <T> T doGet(URI uri, Class<T> responseType) {
     try {
       String token = tokenService.getToken();
-      return RestTemplateUtil.executeWithRetry(() -> {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        ResponseEntity<T> response = restTemplate.exchange(
-            uri, HttpMethod.GET, new HttpEntity<>(headers), responseType);
-        return response.getBody();
-      }, clientProperties.getNumRetries(),
-          Duration.ofMillis(clientProperties.getRetryWaitMillis()));
+      return RestTemplateUtil.executeWithRetry(() ->
+          restClient.get()
+              .uri(uri)
+              .headers(h -> h.setBearerAuth(token))
+              .retrieve()
+              .body(responseType),
+          clientProperties.getNumRetries(),
+          clientProperties.getRetryWaitDuration());
     } catch (OpenTmfClientResponseException e) {
       throw new CamundaResponseException(e);
     }
@@ -111,14 +106,14 @@ public class RestCamundaClientImpl implements CamundaRestClient {
   private <T> T doGet(URI uri, ParameterizedTypeReference<T> responseType) {
     try {
       String token = tokenService.getToken();
-      return RestTemplateUtil.executeWithRetry(() -> {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        ResponseEntity<T> response = restTemplate.exchange(
-            uri, HttpMethod.GET, new HttpEntity<>(headers), responseType);
-        return response.getBody();
-      }, clientProperties.getNumRetries(),
-          Duration.ofMillis(clientProperties.getRetryWaitMillis()));
+      return RestTemplateUtil.executeWithRetry(() ->
+          restClient.get()
+              .uri(uri)
+              .headers(h -> h.setBearerAuth(token))
+              .retrieve()
+              .body(responseType),
+          clientProperties.getNumRetries(),
+          clientProperties.getRetryWaitDuration());
     } catch (OpenTmfClientResponseException e) {
       throw new CamundaResponseException(e);
     }
@@ -127,15 +122,16 @@ public class RestCamundaClientImpl implements CamundaRestClient {
   private <T> T doPost(URI uri, Object body, Class<T> responseType) {
     try {
       String token = tokenService.getToken();
-      return RestTemplateUtil.executeWithRetry(() -> {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        ResponseEntity<T> response = restTemplate.exchange(
-            uri, HttpMethod.POST, new HttpEntity<>(body, headers), responseType);
-        return response.getBody();
-      }, clientProperties.getNumRetries(),
-          Duration.ofMillis(clientProperties.getRetryWaitMillis()));
+      return RestTemplateUtil.executeWithRetry(() ->
+          restClient.post()
+              .uri(uri)
+              .headers(h -> h.setBearerAuth(token))
+              .contentType(MediaType.APPLICATION_JSON)
+              .body(body)
+              .retrieve()
+              .body(responseType),
+          clientProperties.getNumRetries(),
+          clientProperties.getRetryWaitDuration());
     } catch (OpenTmfClientResponseException e) {
       throw new CamundaResponseException(e);
     }
@@ -143,10 +139,6 @@ public class RestCamundaClientImpl implements CamundaRestClient {
 
   private CamundaDeploymentResponse doMultipartPost(String deploymentName,
       Resource[] bpmnFiles, String token) {
-    HttpHeaders headers = new HttpHeaders();
-    headers.setBearerAuth(token);
-    headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-
     MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
     body.add("deployment-name", deploymentName);
     body.add("deployment-source", "BPMN Sync Service");
@@ -155,9 +147,12 @@ public class RestCamundaClientImpl implements CamundaRestClient {
       body.add(ResourceUtil.getResourceNameWithFolder(bpmn), bpmn);
     }
 
-    ResponseEntity<CamundaDeploymentResponse> response = restTemplate.exchange(
-        URI.create(camundaProperties.getBaseUrl() + "/deployment/create"),
-        HttpMethod.POST, new HttpEntity<>(body, headers), CamundaDeploymentResponse.class);
-    return response.getBody();
+    return restClient.post()
+        .uri(URI.create(camundaProperties.getBaseUrl() + "/deployment/create"))
+        .headers(h -> h.setBearerAuth(token))
+        .contentType(MediaType.MULTIPART_FORM_DATA)
+        .body(body)
+        .retrieve()
+        .body(CamundaDeploymentResponse.class);
   }
 }

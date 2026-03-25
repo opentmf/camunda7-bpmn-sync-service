@@ -1,6 +1,6 @@
 package org.opentmf.bpmn.sync.service.impl;
 
-import org.opentmf.bpmn.sync.client.api.CamundaRestClient;
+import org.opentmf.bpmn.sync.client.api.RestCamundaClient;
 import org.opentmf.bpmn.sync.config.BpmnSyncProperties;
 import org.opentmf.bpmn.sync.model.CamundaDeploymentResponse;
 import org.opentmf.bpmn.sync.model.ExecuteMigrationPlanAsyncResponse;
@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RestBpmnMigrationServiceImpl implements BpmnMigrationService {
 
   private final BpmnSyncProperties bpmnSyncProperties;
-  private final CamundaRestClient camundaClient;
+  private final RestCamundaClient camundaClient;
 
   @Override
   public void performAutoMigration(CamundaDeploymentResponse deployment) {

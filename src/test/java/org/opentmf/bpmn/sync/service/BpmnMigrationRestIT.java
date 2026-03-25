@@ -10,7 +10,7 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 import lombok.extern.slf4j.Slf4j;
 import org.opentmf.bpmn.sync.CamundaTestContainers;
 import org.opentmf.bpmn.sync.DockerCamundaBaseIT;
-import org.opentmf.bpmn.sync.client.api.CamundaRestClient;
+import org.opentmf.bpmn.sync.client.api.RestCamundaClient;
 import org.opentmf.bpmn.sync.client.impl.RestCamundaClientImpl;
 import org.opentmf.bpmn.sync.model.CamundaDeploymentResponse;
 import org.opentmf.bpmn.sync.service.api.BpmnSyncService;
@@ -30,7 +30,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 @Slf4j
 @ActiveProfiles("it")
@@ -64,16 +64,16 @@ class BpmnMigrationRestIT extends DockerCamundaBaseIT {
     return new PathMatchingResourcePatternResolver().getResources(locationPattern);
   }
 
-  private CamundaRestClient buildSpiedClient() {
+  private RestCamundaClient buildSpiedClient() {
     String ref = bpmnSyncProperties.getClientRef();
     return Mockito.spy(new RestCamundaClientImpl(
-        (RestTemplate) ctx.getBean(ref + "RestTemplate"),
+        (RestClient) ctx.getBean(ref + "RestClient"),
         (SyncTokenService) ctx.getBean(ref + "TokenService"),
         (ClientProperties) ctx.getBean(ref + "ClientProperties"),
         camundaProperties));
   }
 
-  private BpmnSyncService buildSyncService(CamundaRestClient client) {
+  private BpmnSyncService buildSyncService(RestCamundaClient client) {
     var migration = new RestBpmnMigrationServiceImpl(bpmnSyncProperties, client);
     return new RestBpmnSyncServiceImpl(
         bpmnSyncProperties, dbLockService, client, migration);
@@ -142,8 +142,8 @@ class BpmnMigrationRestIT extends DockerCamundaBaseIT {
     }
   }
 
-  private boolean processExists(CamundaRestClient client,
-      CamundaDeploymentResponse response, String bpmnProcessKey) {
+  private boolean processExists(RestCamundaClient client,
+                                CamundaDeploymentResponse response, String bpmnProcessKey) {
     var count = client.getProcessInstanceCount(processDefinitionId(response, bpmnProcessKey));
     return count != null && count.getCount() > 0;
   }

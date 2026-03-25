@@ -10,7 +10,7 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 import lombok.extern.slf4j.Slf4j;
 import org.opentmf.bpmn.sync.CamundaTestContainers;
 import org.opentmf.bpmn.sync.DockerCamundaBaseIT;
-import org.opentmf.bpmn.sync.client.api.CamundaReactiveClient;
+import org.opentmf.bpmn.sync.client.api.ReactiveCamundaClient;
 import org.opentmf.bpmn.sync.client.impl.ReactiveCamundaClientImpl;
 import org.opentmf.bpmn.sync.model.CamundaDeploymentResponse;
 import org.opentmf.bpmn.sync.service.api.BpmnSyncService;
@@ -64,7 +64,7 @@ class BpmnMigrationReactiveIT extends DockerCamundaBaseIT {
     return new PathMatchingResourcePatternResolver().getResources(locationPattern);
   }
 
-  private CamundaReactiveClient buildSpiedClient() {
+  private ReactiveCamundaClient buildSpiedClient() {
     String ref = bpmnSyncProperties.getClientRef();
     return Mockito.spy(new ReactiveCamundaClientImpl(
         (WebClient) ctx.getBean(ref + "WebClient"),
@@ -73,7 +73,7 @@ class BpmnMigrationReactiveIT extends DockerCamundaBaseIT {
         camundaProperties));
   }
 
-  private BpmnSyncService buildSyncService(CamundaReactiveClient client) {
+  private BpmnSyncService buildSyncService(ReactiveCamundaClient client) {
     var migration = new ReactiveBpmnMigrationServiceImpl(bpmnSyncProperties, client);
     return new ReactiveBpmnSyncServiceImpl(
         bpmnSyncProperties, dbLockService, client, migration);
@@ -142,8 +142,8 @@ class BpmnMigrationReactiveIT extends DockerCamundaBaseIT {
     }
   }
 
-  private boolean processExists(CamundaReactiveClient client,
-      CamundaDeploymentResponse response, String bpmnProcessKey) {
+  private boolean processExists(ReactiveCamundaClient client,
+                                CamundaDeploymentResponse response, String bpmnProcessKey) {
     var count = client.getProcessInstanceCount(processDefinitionId(response, bpmnProcessKey))
         .block();
     return count != null && count.getCount() > 0;

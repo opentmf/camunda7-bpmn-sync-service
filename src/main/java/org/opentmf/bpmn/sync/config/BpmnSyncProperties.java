@@ -59,13 +59,13 @@ public class BpmnSyncProperties {
   /**
    * The client-ref id to use. This id is the prefix to the following exposed beans:
    * <ul>
-   *   <li>WebClient (or RestTemplate)</li>
+   *   <li>WebClient (or RestClient)</li>
    *   <li>TokenService (or SyncTokenService)</li>
    *   <li>ClientProperties</li>
    * </ul>
    * <p>
    *   For example, if the client-ref value is <strong>openid</strong> then we will look up
-   *   beans named <strong>openidWebClient</strong> or <strong>openidRestTemplate</strong>, etc.
+   *   beans named <strong>openidWebClient</strong> or <strong>openidRestClient</strong>, etc.
    * </p>
    */
   @NotEmpty

@@ -2,7 +2,7 @@ package org.opentmf.bpmn.sync;
 
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
-import org.opentmf.bpmn.sync.client.api.CamundaReactiveClient;
+import org.opentmf.bpmn.sync.client.api.ReactiveCamundaClient;
 import org.opentmf.bpmn.sync.client.impl.ReactiveCamundaClientImpl;
 import org.opentmf.bpmn.sync.config.BpmnSyncProperties;
 import org.opentmf.bpmn.sync.config.CamundaProperties;
@@ -42,7 +42,7 @@ public abstract class BaseIT {
         () -> mockServer.getBaseUrl() + "/oauth2/token");
   }
 
-  protected CamundaReactiveClient getCamundaClient() {
+  protected ReactiveCamundaClient getCamundaClient() {
     String ref = bpmnSyncProperties.getClientRef();
     return new ReactiveCamundaClientImpl(
         (WebClient) ctx.getBean(ref + "WebClient"),

@@ -1,6 +1,6 @@
 package org.opentmf.bpmn.sync.service.impl;
 
-import org.opentmf.bpmn.sync.client.api.CamundaReactiveClient;
+import org.opentmf.bpmn.sync.client.api.ReactiveCamundaClient;
 import org.opentmf.bpmn.sync.config.BpmnSyncProperties;
 import org.opentmf.bpmn.sync.model.CamundaDeploymentResponse;
 import org.opentmf.bpmn.sync.model.ExecuteMigrationPlanAsyncResponse;
@@ -25,7 +25,7 @@ import reactor.core.publisher.Mono;
 public class ReactiveBpmnMigrationServiceImpl implements BpmnMigrationService {
 
   private final BpmnSyncProperties bpmnSyncProperties;
-  private final CamundaReactiveClient camundaClient;
+  private final ReactiveCamundaClient camundaClient;
 
   @Override
   public void performAutoMigration(CamundaDeploymentResponse deployment) {

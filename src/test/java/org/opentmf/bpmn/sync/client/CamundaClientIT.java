@@ -17,6 +17,7 @@ import org.opentmf.bpmn.sync.model.MigrationPlan;
 import org.opentmf.bpmn.sync.model.ProcessInstanceQuery;
 import org.opentmf.client.common.model.ClientProperties;
 import org.opentmf.commons.util.JacksonUtil;
+import java.time.Duration;
 import java.util.Collections;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -84,7 +85,7 @@ class CamundaClientIT extends BaseIT {
   void test_getProcessDefinitions_returnsGatewayTimeoutAfterTwoRetries() {
     var clientProps = getClientProperties();
     clientProps.setNumRetries(2);
-    clientProps.setRetryWaitMillis(100L);
+    clientProps.setRetryWaitDuration(Duration.ofMillis(100L));
     var camundaErrorResponse = JacksonUtil.fileToObject("json/camunda_error.json", CamundaErrorResponse.class);
     camundaErrorResponse.setDetails(Collections.emptyList());
     mockServer.expectGet("/process-definition", 3, GATEWAY_TIMEOUT,

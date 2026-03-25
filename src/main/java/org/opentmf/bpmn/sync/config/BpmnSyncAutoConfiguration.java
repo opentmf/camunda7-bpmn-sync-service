@@ -20,7 +20,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 
 /**
@@ -58,9 +58,9 @@ public class BpmnSyncAutoConfiguration implements SmartInitializingSingleton {
           bpmnSyncProperties, dbLockService, client, migration);
     } else {
       log.info("Using REST client with client-ref '{}'", clientRef);
-      var restTemplate = (RestTemplate) ctx.getBean(clientRef + "RestTemplate");
+      var restClient = (RestClient) ctx.getBean(clientRef + "RestClient");
       var tokenService = (SyncTokenService) ctx.getBean(clientRef + "TokenService");
-      var client = new RestCamundaClientImpl(restTemplate, tokenService, clientProperties,
+      var client = new RestCamundaClientImpl(restClient, tokenService, clientProperties,
           camundaProperties);
       var migration = new RestBpmnMigrationServiceImpl(bpmnSyncProperties, client);
       this.bpmnSyncService = new RestBpmnSyncServiceImpl(
