@@ -1,8 +1,8 @@
 package org.opentmf.bpmn.sync.model;
 
-import static org.opentmf.bpmn.sync.util.JacksonTestUtil.fileToObject;
-import static org.opentmf.bpmn.sync.util.JacksonTestUtil.jsonToObject;
-import static org.opentmf.bpmn.sync.util.JacksonTestUtil.objectToJson;
+import static org.opentmf.commons.util.JacksonUtil.fileToObject;
+import static org.opentmf.commons.util.JacksonUtil.jsonToObject;
+import static org.opentmf.commons.util.JacksonUtil.objectToPrettyJson;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.stream.Stream;
@@ -36,7 +36,7 @@ class ModelTests {
       String originalJson, Class<?> clazz) {
     Object object = fileToObject(originalJson, clazz);
     Assertions.assertNotNull(object);
-    String newJson = objectToJson(object);
+    String newJson = objectToPrettyJson(object);
     org.assertj.core.api.Assertions
         .assertThat(object).usingRecursiveComparison()
         .isEqualTo(jsonToObject(newJson, clazz));

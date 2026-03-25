@@ -1,0 +1,41 @@
+opentmf:
+  security:
+    secure-endpoints:
+      - method: GET
+        path: /engine-rest/**
+        roles:
+          - reader
+          - writer
+          - admin
+      - method: POST
+        path: /engine-rest/**
+        roles:
+          - writer
+          - admin
+      - method: PUT
+        path: /engine-rest/**
+        roles:
+          - writer
+          - admin
+      - method: DELETE
+        path: /engine-rest/**
+        roles:
+          - admin
+
+      - method: GET
+        path: /actuator/env
+        roles:
+          - admin
+      - method: GET
+        path: /actuator/env/**
+        roles:
+          - admin
+
+    whitelist:
+      - /error
+      - /camunda/**
+      - /engine-rest/external-task/**
+      - /actuator
+      - /actuator/health/**
+      - /actuator/loggers/**
+      - /actuator/metrics/**

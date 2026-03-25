@@ -1,6 +1,6 @@
 package org.opentmf.bpmn.sync.service.impl;
 
-import org.opentmf.bpmn.sync.client.api.CamundaClient;
+import org.opentmf.bpmn.sync.client.api.ReactiveCamundaClient;
 import org.opentmf.bpmn.sync.config.BpmnSyncProperties;
 import org.opentmf.bpmn.sync.model.CamundaDeploymentResponse;
 import org.opentmf.bpmn.sync.model.ProcessDefinition;
@@ -21,11 +21,11 @@ import org.springframework.util.Assert;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class BpmnSyncServiceImpl implements BpmnSyncService {
+public class ReactiveBpmnSyncServiceImpl implements BpmnSyncService {
 
   private final BpmnSyncProperties bpmnSyncProperties;
   private final DbLockService dbLockService;
-  private final CamundaClient camundaClient;
+  private final ReactiveCamundaClient camundaClient;
   private final BpmnMigrationService bpmnMigrationService;
 
   @Override

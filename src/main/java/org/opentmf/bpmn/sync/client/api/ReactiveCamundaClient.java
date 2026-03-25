@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 /**
  * @author Gokhan Demir
  */
-public interface CamundaClient {
+public interface ReactiveCamundaClient {
 
   Mono<CamundaDeploymentResponse> syncBpmnFiles(String deploymentName, Resource[] bpmnFiles);
 

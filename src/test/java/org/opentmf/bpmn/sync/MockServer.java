@@ -3,7 +3,7 @@ package org.opentmf.bpmn.sync;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
-import org.opentmf.bpmn.sync.util.JacksonTestUtil;
+import org.opentmf.commons.util.JacksonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.matchers.MatchType;
@@ -20,7 +20,7 @@ public class MockServer {
   private final ClientAndServer clientAndServer = new ClientAndServer();
   private final String baseUrl = "http://localhost:" + clientAndServer.getPort();
 
-  private static final JsonBody ACCESS_TOKEN = new JsonBody(JacksonTestUtil.contents("json/sh_access_token.json"));
+  private static final JsonBody ACCESS_TOKEN = new JsonBody(JacksonUtil.contents("json/sh_access_token.json"));
 
   public MockServer() {
     log.debug("New instance created.");
@@ -34,7 +34,7 @@ public class MockServer {
 
   private void expectOpenidToken() {
     clientAndServer
-        .when(request().withMethod("POST").withPath("/oauth2/token"), Times.exactly(1))
+        .when(request().withMethod("POST").withPath("/oauth2/token"), Times.unlimited())
         .respond(response().withBody(ACCESS_TOKEN).withStatusCode(HttpStatus.OK.value()));
   }
 

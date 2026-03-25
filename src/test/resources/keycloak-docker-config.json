@@ -1,0 +1,55 @@
+{
+  "baseUrl": "http://mockserver:1080",
+  "realms": [
+    {
+      "name": "opentmf",
+      "roles": ["admin", "writer", "reader"],
+      "groups": [
+        { "name": "camunda-admin", "subGroups": ["query-users", "query-groups", "view-users"] }
+      ],
+      "clients": [
+        {
+          "clientId": "client1",
+          "clientSecret": "client1Secret",
+          "publicClient": false,
+          "allowedGrantTypes": ["client_credentials"],
+          "serviceAccountRoles": ["admin", "writer", "reader", "query-users", "query-groups", "view-users"]
+        },
+        {
+          "clientId": "uiClient",
+          "publicClient": true,
+          "allowedGrantTypes": ["password", "refresh_token"]
+        }
+      ],
+      "users": [
+        {
+          "username": "admin_usr",
+          "password": "admin_pwd",
+          "email": "admin@example.com",
+          "firstName": "Admin",
+          "lastName": "User",
+          "roles": ["admin", "writer", "reader"],
+          "groups": ["admins"]
+        },
+        {
+          "username": "writer_usr",
+          "password": "writer_pwd",
+          "email": "writer@example.com",
+          "firstName": "Writer",
+          "lastName": "User",
+          "roles": ["writer", "reader"],
+          "groups": ["developers"]
+        },
+        {
+          "username": "reader_usr",
+          "password": "reader_pwd",
+          "email": "reader@example.com",
+          "firstName": "Reader",
+          "lastName": "User",
+          "roles": ["reader"],
+          "groups": ["viewers"]
+        }
+      ]
+    }
+  ]
+}

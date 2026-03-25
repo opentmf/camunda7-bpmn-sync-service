@@ -23,29 +23,18 @@ opentmf:
     lock-hold-timeout: 60000
 
   bpmn-sync:
-    client: openid
+    client-ref: openid
 
-  webclient:
+  http-clients:
     openid:
-      client1:
-        connection-provider-name: client1-provider
-        request-timeout-millis: 30_000
-        response-timeout-millis: 50_000
-        num-retries: 3
-        retry-wait-millis: 100
-        token-config:
-          token-url: http://localhost:1080/oauth2/token
-          basic-auth-username: user
-          basic-auth-password: pass
-          cache-expiry-seconds: 60
-          form-data:
-            username: user
-            password: pass
-            scope: openid
-            grant_type: password
-    basic:
-      client2:
-        connection-provider-name: client2
-        token-config:
-          username: user
-          password: pass
+      client-type: netty
+      request-timeout: 30s
+      response-timeout: 50s
+      num-retries: 3
+      retry-wait-duration: 100ms
+      bearer-auth:
+        token-url: http://placeholder
+        form-data:
+          grant_type: client_credentials
+          client_id: test
+          client_secret: testSecret
