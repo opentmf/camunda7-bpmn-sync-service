@@ -1,7 +1,8 @@
 # Camunda7 BPMN Synchronization Service
-This service synchronizes the BPMN files under classpath:bpmn/ folder with the configured Camunda server.
+This service synchronizes the BPMN files under `classpath:bpmn/` **and the DMN files under
+`classpath:dmn/`** with the configured Camunda server, in a single, version-guarded deployment.
 
-Depending on the value of auto-migrate, migrates the deployed BPMN's previous version's process instances to the newly deployed version.
+Depending on the value of auto-migrate, migrates the deployed BPMN's previous version's process instances to the newly deployed version. DMN decision definitions have no process instances and are never migrated.
 
 ## Auto Migration
 BPMN Sync Service supports automatically migrating the process instances of the deployed BPMNs' previous version to the new version. To enable auto migration, set auto-migrate to true.
@@ -50,10 +51,11 @@ Depend on the camunda7-bpmn-sync-service:
     <artifactId>camunda7-bpmn-sync-service</artifactId>
   </dependency>
 ```
-### 2. Reorganize the BPMN files
+### 2. Reorganize the BPMN and DMN files
 1. In your microservice, the BPMN files must be under **src/main/resources/bpmn** folder. All *.bpmn files within this folder and its sub-folders will be used in the synchronization process.
+2. DMN files (decision tables / DRDs) must be under **src/main/resources/dmn** folder. All *.dmn files within this folder and its sub-folders are deployed together with the BPMN files, in the **same** Camunda deployment. A single `opentmf.bpmn-sync.bpmn-version` governs the whole bundle — bump it whenever **any** BPMN *or* DMN changes.
     * Note: If your microservice uses embedded Camunda for its IT tests, you can benefit from this camunda configuration property: [camunda.deployment-resource-pattern](https://docs.camunda.org/manual/7.19/user-guide/spring-boot-integration/configuration/)
-2. Ensure one BPMN is deployed by one microservice. Do not try to deploy the same BPMN in a different microservice.
+3. Ensure one BPMN/DMN is deployed by one microservice. Do not try to deploy the same resource in a different microservice.
 
 ### 3. Specify the BPMN Sync Properties
 In your application.yaml, specify the BPMN Sync Properties:

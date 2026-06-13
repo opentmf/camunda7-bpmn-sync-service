@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:camunda="http://camunda.org/schema/1.0/dmn"
+             id="bounceDefinitions"
+             name="BounceSubstitution"
+             namespace="http://camunda.org/schema/1.0/dmn"
+             exporter="camunda7-bpmn-sync-service-test"
+             exporterVersion="1.0">
+  <decision id="bounce" name="BounceSubstitution">
+    <decisionTable id="bounceTable" hitPolicy="FIRST">
+      <input id="inChannel" label="currentChannel">
+        <inputExpression id="inChannelExpr" typeRef="string">
+          <text>currentChannel</text>
+        </inputExpression>
+      </input>
+      <output id="outNewChannel" label="newChannel" name="newChannel" typeRef="string"/>
+      <rule id="ruleEmailToLetter">
+        <inputEntry id="ruleEmailToLetterIn"><text>"email"</text></inputEntry>
+        <outputEntry id="ruleEmailToLetterOut"><text>"letter"</text></outputEntry>
+      </rule>
+      <rule id="ruleDefault">
+        <inputEntry id="ruleDefaultIn"><text>-</text></inputEntry>
+        <outputEntry id="ruleDefaultOut"><text>"none"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>

@@ -1,8 +1,10 @@
 package org.opentmf.bpmn.sync.service.impl;
 
+import java.util.Map;
 import org.opentmf.bpmn.sync.client.api.RestCamundaClient;
 import org.opentmf.bpmn.sync.config.BpmnSyncProperties;
 import org.opentmf.bpmn.sync.model.CamundaDeploymentResponse;
+import org.opentmf.bpmn.sync.model.DecisionDefinition;
 import org.opentmf.bpmn.sync.model.ProcessDefinition;
 import org.opentmf.bpmn.sync.service.api.BpmnMigrationService;
 import org.opentmf.bpmn.sync.service.api.BpmnSyncService;
@@ -43,7 +45,7 @@ public class RestBpmnSyncServiceImpl implements BpmnSyncService {
   }
 
   private CamundaDeploymentResponse doEnsureBpmnConsistency() throws DbLockException {
-    Resource[] bpmnFiles = ensurePropertiesProvided();
+    Resource[] deployableResources = ensurePropertiesProvided();
     CamundaDeploymentResponse deploymentResponse = null;
     boolean lockReleased = false;
     AcquiredLock lock = null;
@@ -55,22 +57,20 @@ public class RestBpmnSyncServiceImpl implements BpmnSyncService {
           (lock.isDowngrade() &&
               lock.isDowngradeAllowed(bpmnSyncProperties.getDowngradeAllowedAfter())))
       {
-        deploymentResponse = syncBpmnFiles(bpmnFiles);
-        deployedCount = (deploymentResponse == null || deploymentResponse
-            .getDeployedProcessDefinitions() == null)
-            ? 0 : deploymentResponse.getDeployedProcessDefinitions().size();
+        deploymentResponse = syncDeployableResources(deployableResources);
+        deployedCount = deploymentResponse == null ? 0 : deploymentResponse.totalDeployedCount();
         releaseLock(lock, deployedCount);
         lockReleased = true;
       } else {
         dbLockService.releaseLock(lock, false);
         lockReleased = true;
-        log.info("{} BPMN files are already up-to-date for version {}.",
+        log.info("{} BPMN/DMN resources are already up-to-date for version {}.",
             bpmnSyncProperties.getDeploymentName(), lock.getLockVersion());
       }
     } catch (Exception e) {
       dbLockService.releaseLock(lock, false);
       lockReleased = true;
-      throw new IllegalStateException("Could not synchronize BPMN files because of exception", e);
+      throw new IllegalStateException("Could not synchronize BPMN/DMN files because of exception", e);
     } finally {
       if (!lockReleased) {
         releaseLock(lock, deployedCount);
@@ -82,38 +82,58 @@ public class RestBpmnSyncServiceImpl implements BpmnSyncService {
   private Resource[] ensurePropertiesProvided() {
     Assert.notNull(bpmnSyncProperties.getDeploymentName(), "Application name must be provided.");
     Assert.notNull(bpmnSyncProperties.getBpmnVersion(), "BPMN version must be provided.");
-    Resource[] bpmnFiles = ResourceUtil.getBpmnFiles();
-    Assert.notEmpty(bpmnFiles, "No BPMN files found in classpath:bpmn folder.");
-    return bpmnFiles;
+    Resource[] deployableResources = ResourceUtil.getDeployableResources();
+    Assert.notEmpty(deployableResources,
+        "No deployable resources found in classpath:bpmn or classpath:dmn folders.");
+    return deployableResources;
   }
 
-  private CamundaDeploymentResponse syncBpmnFiles(Resource[] bpmnFiles) {
-    log.info("Will synchronize {} BPMN files, for {}, bpmnVersion: {}", bpmnFiles.length,
+  private CamundaDeploymentResponse syncDeployableResources(Resource[] deployableResources) {
+    log.info("Will synchronize {} BPMN/DMN files, for {}, bpmnVersion: {}",
+        deployableResources.length,
         bpmnSyncProperties.getDeploymentName(), bpmnSyncProperties.getBpmnVersion());
 
-    var response = camundaClient.syncBpmnFiles(bpmnSyncProperties.getDeploymentName(), bpmnFiles);
+    var response =
+        camundaClient.syncBpmnFiles(bpmnSyncProperties.getDeploymentName(), deployableResources);
     logDeploymentResponse(response);
     return response;
   }
 
   private void logDeploymentResponse(CamundaDeploymentResponse response) {
-    int deployedCount = response.getDeployedProcessDefinitions() == null ? 0 :
-        response.getDeployedProcessDefinitions().size();
-    if (deployedCount == 0) {
-      log.warn("{} BPMN synchronization completed without deploying any BPMN. "
+    if (response.totalDeployedCount() == 0) {
+      log.warn("{} synchronization completed without deploying any BPMN or DMN. "
           + "The specified bpmnVersion was: {}. "
-          + "Hint: Do not change the bpmnVersion when there are no BPMN changes.",
+          + "Hint: Do not change the bpmnVersion when there are no BPMN/DMN changes.",
           bpmnSyncProperties.getDeploymentName(), bpmnSyncProperties.getBpmnVersion());
-    } else {
-      log.info("BPMN deployment for {}, version {} has been completed. Deployed BPMN count: {}",
-          bpmnSyncProperties.getDeploymentName(), bpmnSyncProperties.getBpmnVersion(),
-          deployedCount);
-      log.debug("Deployed BPMN Files and Their Versions follows:");
-      for (ProcessDefinition bpmn : response.getDeployedProcessDefinitions().values()) {
-        String format = String.format("Version: %d, BPMN: %s", bpmn.getVersion(),
-            bpmn.getResource());
-        log.debug(format);
-      }
+      return;
+    }
+    log.info("Deployment for {}, version {} has been completed. "
+            + "Deployed artifacts - BPMN: {}, DMN: {}, DRD: {}.",
+        bpmnSyncProperties.getDeploymentName(), bpmnSyncProperties.getBpmnVersion(),
+        response.getDeployedProcessDefinitionCount(),
+        response.getDeployedDecisionDefinitionCount(),
+        response.getDeployedDecisionRequirementsDefinitionCount());
+    logDeployedProcessDefinitions(response.getDeployedProcessDefinitions());
+    logDeployedDecisionDefinitions(response.getDeployedDecisionDefinitions());
+  }
+
+  private void logDeployedProcessDefinitions(Map<String, ProcessDefinition> definitions) {
+    if (definitions == null || definitions.isEmpty()) {
+      return;
+    }
+    log.debug("Deployed BPMN files and their versions follow:");
+    for (ProcessDefinition bpmn : definitions.values()) {
+      log.debug("Version: {}, BPMN: {}", bpmn.getVersion(), bpmn.getResource());
+    }
+  }
+
+  private void logDeployedDecisionDefinitions(Map<String, DecisionDefinition> definitions) {
+    if (definitions == null || definitions.isEmpty()) {
+      return;
+    }
+    log.debug("Deployed DMN files and their versions follow:");
+    for (DecisionDefinition dmn : definitions.values()) {
+      log.debug("Version: {}, DMN: {}", dmn.getVersion(), dmn.getResource());
     }
   }
 

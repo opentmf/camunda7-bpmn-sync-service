@@ -30,6 +30,33 @@ class ResourceUtilTests {
   }
 
   @Test
+  void test_getDmnFiles_returnsValidResult() {
+    Resource[] resources = ResourceUtil.getDmnFiles();
+    Assertions.assertNotNull(resources);
+    Assertions.assertEquals(2, resources.length);
+    var set = new HashSet<String>();
+    for (Resource r : resources) {
+      var name = ResourceUtil.getResourceNameWithFolder(r);
+      Assertions.assertFalse(name.startsWith("/"));
+      Assertions.assertFalse(name.startsWith("/dmn"));
+      set.add(name);
+    }
+    Assertions.assertEquals(2, set.size());
+    // sub-folder structure under /dmn/ is preserved, the root is stripped
+    Assertions.assertTrue(set.contains("routing.dmn"));
+    Assertions.assertTrue(set.contains("sub/bounce.dmn"));
+  }
+
+  @Test
+  void test_getDeployableResources_combinesBpmnAndDmn() {
+    Resource[] resources = ResourceUtil.getDeployableResources();
+    Assertions.assertNotNull(resources);
+    Assertions.assertEquals(
+        ResourceUtil.getBpmnFiles().length + ResourceUtil.getDmnFiles().length, resources.length);
+    Assertions.assertEquals(19, resources.length);
+  }
+
+  @Test
   void test_getName_withNonBpmnResource_returnsFileName() {
     var resource = new PathMatchingResourcePatternResolver().getResource(
         "classpath:json/migration_plan.json");

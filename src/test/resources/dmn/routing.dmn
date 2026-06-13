@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/"
+             xmlns:camunda="http://camunda.org/schema/1.0/dmn"
+             id="routingDefinitions"
+             name="Routing"
+             namespace="http://camunda.org/schema/1.0/dmn"
+             exporter="camunda7-bpmn-sync-service-test"
+             exporterVersion="1.0">
+  <decision id="routing" name="Routing">
+    <decisionTable id="routingTable" hitPolicy="FIRST">
+      <input id="inHasEmail" label="hasEmail">
+        <inputExpression id="inHasEmailExpr" typeRef="boolean">
+          <text>hasEmail</text>
+        </inputExpression>
+      </input>
+      <output id="outChannels" label="channels" name="channels" typeRef="string"/>
+      <rule id="ruleEmail">
+        <inputEntry id="ruleEmailIn"><text>true</text></inputEntry>
+        <outputEntry id="ruleEmailOut"><text>"email"</text></outputEntry>
+      </rule>
+      <rule id="ruleLetter">
+        <inputEntry id="ruleLetterIn"><text>-</text></inputEntry>
+        <outputEntry id="ruleLetterOut"><text>"letter"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>

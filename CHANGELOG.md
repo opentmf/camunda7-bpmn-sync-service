@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- DMN deployment support: `*.dmn` files under `classpath:dmn/` are now deployed alongside the
+  BPMN files in the same Camunda deployment. Deployed decision definitions are exposed via
+  `CamundaDeploymentResponse.deployedDecisionDefinitions` /
+  `deployedDecisionRequirementsDefinitions` and are never subject to auto-migration.
+
+### Fixed
+- A deployment that changed only DMN files (no BPMN change) was logged as "nothing deployed" and
+  did not advance the db-lock version. The "did we deploy anything?" decision now counts BPMN and
+  DMN artifacts together (`CamundaDeploymentResponse.totalDeployedCount()`).
+
 ## [2.0.1] - 2026-03-25
 
 ### Changed

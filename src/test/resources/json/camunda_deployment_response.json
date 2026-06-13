@@ -191,5 +191,16 @@
       "suspended": false,
       "startableInTasklist": true
     }
+  },
+  "deployedDecisionDefinitions": {
+    "routing:1:0116aaaa-96c2-11ee-917f-42bebad1fd12": {
+      "id": "routing:1:0116aaaa-96c2-11ee-917f-42bebad1fd12",
+      "key": "routing",
+      "category": "http://camunda.org/schema/1.0/dmn",
+      "name": "Routing",
+      "version": 1,
+      "resource": "routing.dmn",
+      "deploymentId": "00cfe39e-96c2-11ee-917f-42bebad1fd12"
+    }
   }
 }

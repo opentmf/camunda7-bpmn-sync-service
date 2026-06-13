@@ -5,8 +5,10 @@ import static org.opentmf.commons.util.JacksonUtil.jsonToObject;
 import static org.opentmf.commons.util.JacksonUtil.objectToPrettyJson;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -40,5 +42,23 @@ class ModelTests {
     org.assertj.core.api.Assertions
         .assertThat(object).usingRecursiveComparison()
         .isEqualTo(jsonToObject(newJson, clazz));
+  }
+
+  @Test
+  void testTotalDeployedCount_isNullSafeSumOfAllArtifactMaps() {
+    var empty = new CamundaDeploymentResponse();
+    Assertions.assertEquals(0, empty.totalDeployedCount());
+
+    var response = new CamundaDeploymentResponse();
+    response.setDeployedProcessDefinitions(Map.of("a", new ProcessDefinition()));
+    response.setDeployedDecisionDefinitions(
+        Map.of("b", new DecisionDefinition(), "c", new DecisionDefinition()));
+    response.setDeployedDecisionRequirementsDefinitions(
+        Map.of("d", new DecisionRequirementsDefinition()));
+
+    Assertions.assertEquals(1, response.getDeployedProcessDefinitionCount());
+    Assertions.assertEquals(2, response.getDeployedDecisionDefinitionCount());
+    Assertions.assertEquals(1, response.getDeployedDecisionRequirementsDefinitionCount());
+    Assertions.assertEquals(4, response.totalDeployedCount());
   }
 }
