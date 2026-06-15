@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Renamed the published artifact** from `camunda7-bpmn-sync-service` to `camunda7-sync-service`,
+  reflecting that it now deploys DMN decision tables in addition to BPMN process definitions. A
+  Maven relocation POM (`relocation/pom.xml`) redirects the old coordinates to the new ones. The
+  Java package, class names and the `opentmf.bpmn-sync.*` configuration prefix are unchanged, so
+  consumers only need to update the `<artifactId>` in their dependency declaration.
+
 ### Added
 - DMN deployment support: `*.dmn` files under `classpath:dmn/` are now deployed alongside the
   BPMN files in the same Camunda deployment. Deployed decision definitions are exposed via

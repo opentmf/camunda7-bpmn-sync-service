@@ -7,13 +7,13 @@
     <version>4.0.4</version>
   </parent>
   <groupId>org.opentmf.camunda</groupId>
-  <artifactId>camunda7-bpmn-sync-service</artifactId>
-  <name>camunda7-bpmn-sync-service</name>
+  <artifactId>camunda7-sync-service</artifactId>
+  <name>camunda7-sync-service</name>
   <version>2.0.2-SNAPSHOT</version>
 
   <description>
-    Synchronizes the BPMNs to Camunda 7 on app startup and if requested,
-    performs process instance migration.
+    Synchronizes the BPMN process definitions and DMN decision tables to Camunda 7
+    on app startup and, if requested, performs process instance migration.
   </description>
 
   <url>https://github.com/opentmf/camunda7-bpmn-sync-service</url>

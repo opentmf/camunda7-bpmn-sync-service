@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Relocation ("tombstone") POM for the old coordinates of this library.
+
+  This module is intentionally NOT part of the main reactor build. It exists only to be
+  deployed once to the repository under the OLD artifactId, so that anything still depending
+  on `org.opentmf.camunda:camunda7-bpmn-sync-service` is transparently redirected to the new
+  `org.opentmf.camunda:camunda7-sync-service` coordinates.
+
+  Deploy it once, alongside the first release of the renamed artifact, with:
+
+      mvn -f relocation/pom.xml deploy
+
+  Keep its <version> in sync with the first released version of the renamed artifact.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.opentmf.camunda</groupId>
+  <artifactId>camunda7-bpmn-sync-service</artifactId>
+  <version>2.0.2</version>
+  <packaging>pom</packaging>
+
+  <name>camunda7-bpmn-sync-service (relocated)</name>
+  <description>
+    Relocation stub. This artifact has been renamed to
+    org.opentmf.camunda:camunda7-sync-service.
+  </description>
+  <url>https://github.com/opentmf/camunda7-bpmn-sync-service</url>
+
+  <distributionManagement>
+    <relocation>
+      <groupId>org.opentmf.camunda</groupId>
+      <artifactId>camunda7-sync-service</artifactId>
+      <message>
+        Renamed to camunda7-sync-service: it now deploys DMN decision tables in addition to
+        BPMN process definitions. The Java package and configuration prefix are unchanged.
+      </message>
+    </relocation>
+  </distributionManagement>
+</project>

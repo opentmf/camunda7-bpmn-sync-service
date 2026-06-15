@@ -1,6 +1,11 @@
-# Camunda7 BPMN Synchronization Service
+# Camunda7 Synchronization Service
 This service synchronizes the BPMN files under `classpath:bpmn/` **and the DMN files under
 `classpath:dmn/`** with the configured Camunda server, in a single, version-guarded deployment.
+
+> **Renamed (2.0.2):** this library was formerly published as `camunda7-bpmn-sync-service`.
+> The Maven coordinates are now `org.opentmf.camunda:camunda7-sync-service` — a relocation POM
+> redirects the old coordinates. The Java package, class names and the `opentmf.bpmn-sync.*`
+> configuration prefix are **unchanged**, so no consumer code or YAML changes are required.
 
 Depending on the value of auto-migrate, migrates the deployed BPMN's previous version's process instances to the newly deployed version. DMN decision definitions have no process instances and are never migrated.
 
@@ -44,11 +49,11 @@ Import opentmf-versions for managing the opentmf library dependencies
   </dependencies>
 </dependencyManagement>
 ```
-Depend on the camunda7-bpmn-sync-service: 
+Depend on the camunda7-sync-service: 
 ```xml
   <dependency>
     <groupId>org.opentmf.camunda</groupId>
-    <artifactId>camunda7-bpmn-sync-service</artifactId>
+    <artifactId>camunda7-sync-service</artifactId>
   </dependency>
 ```
 ### 2. Reorganize the BPMN and DMN files
