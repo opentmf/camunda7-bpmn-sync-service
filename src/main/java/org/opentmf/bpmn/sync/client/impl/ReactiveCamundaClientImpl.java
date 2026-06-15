@@ -75,8 +75,8 @@ public class ReactiveCamundaClientImpl implements ReactiveCamundaClient {
   }
 
   @Override
-  public Mono<CamundaDeploymentResponse> syncBpmnFiles(String deploymentName,
-      Resource[] bpmnFiles) {
+  public Mono<CamundaDeploymentResponse> syncResources(String deploymentName,
+      Resource[] resources) {
     return tokenService
         .getToken()
         .flatMap(
@@ -88,7 +88,7 @@ public class ReactiveCamundaClientImpl implements ReactiveCamundaClient {
                     .headers(headers -> headers.set(AUTHORIZATION, getAuth(token)))
                     .body(
                         BodyInserters.fromMultipartData(
-                            getMultipartRequest(deploymentName, bpmnFiles)))
+                            getMultipartRequest(deploymentName, resources)))
                     .retrieve()
                     .bodyToMono(CamundaDeploymentResponse.class)
                     .onErrorMap(OpenTmfClientResponseException.class, CamundaResponseException::new)
@@ -132,12 +132,12 @@ public class ReactiveCamundaClientImpl implements ReactiveCamundaClient {
 
   @NonNull
   private MultiValueMap<String, HttpEntity<?>> getMultipartRequest(String deploymentName,
-      Resource[] bpmnFiles) {
+      Resource[] resources) {
     var builder = new org.springframework.http.client.MultipartBodyBuilder();
     builder.part("deployment-name", deploymentName);
     builder.part("deployment-source", "BPMN Sync Service");
     builder.part("deploy-changed-only", "true");
-    for (Resource bpmn : bpmnFiles) {
+    for (Resource bpmn : resources) {
       builder.part(ResourceUtil.getResourceNameWithFolder(bpmn), bpmn);
     }
     return builder.build();

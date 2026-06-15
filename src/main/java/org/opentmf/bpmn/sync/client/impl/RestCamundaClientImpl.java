@@ -75,11 +75,11 @@ public class RestCamundaClientImpl implements RestCamundaClient {
   }
 
   @Override
-  public CamundaDeploymentResponse syncBpmnFiles(String deploymentName, Resource[] bpmnFiles) {
+  public CamundaDeploymentResponse syncResources(String deploymentName, Resource[] resources) {
     try {
       String token = tokenService.getToken();
       return SyncClientUtil.executeWithRetry(
-          () -> doMultipartPost(deploymentName, bpmnFiles, token),
+          () -> doMultipartPost(deploymentName, resources, token),
           clientProperties.getNumRetries(),
           clientProperties.getRetryWaitDuration());
     } catch (OpenTmfClientResponseException e) {
@@ -138,12 +138,12 @@ public class RestCamundaClientImpl implements RestCamundaClient {
   }
 
   private CamundaDeploymentResponse doMultipartPost(String deploymentName,
-      Resource[] bpmnFiles, String token) {
+      Resource[] resources, String token) {
     MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
     body.add("deployment-name", deploymentName);
     body.add("deployment-source", "BPMN Sync Service");
     body.add("deploy-changed-only", "true");
-    for (Resource bpmn : bpmnFiles) {
+    for (Resource bpmn : resources) {
       body.add(ResourceUtil.getResourceNameWithFolder(bpmn), bpmn);
     }
 

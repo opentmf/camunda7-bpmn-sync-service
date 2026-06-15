@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
  */
 public interface ReactiveCamundaClient {
 
-  Mono<CamundaDeploymentResponse> syncBpmnFiles(String deploymentName, Resource[] bpmnFiles);
+  Mono<CamundaDeploymentResponse> syncResources(String deploymentName, Resource[] resources);
 
   Mono<ProcessDefinition> getProcessDefinition(String key, int version);
 

@@ -114,12 +114,12 @@ class RestCamundaClientImplTest {
   }
 
   @Test
-  void syncBpmnFiles_returnsResult() {
+  void syncResources_returnsResult() {
     when(tokenService.getToken()).thenReturn("tok");
     var deployment = new CamundaDeploymentResponse();
     when(responseSpec.body(eq(CamundaDeploymentResponse.class))).thenReturn(deployment);
 
-    var result = client.syncBpmnFiles("deploy", new Resource[0]);
+    var result = client.syncResources("deploy", new Resource[0]);
     assertNotNull(result);
   }
 

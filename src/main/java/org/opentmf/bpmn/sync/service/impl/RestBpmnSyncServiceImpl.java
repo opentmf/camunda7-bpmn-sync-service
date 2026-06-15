@@ -94,7 +94,7 @@ public class RestBpmnSyncServiceImpl implements BpmnSyncService {
         bpmnSyncProperties.getDeploymentName(), bpmnSyncProperties.getBpmnVersion());
 
     var response =
-        camundaClient.syncBpmnFiles(bpmnSyncProperties.getDeploymentName(), deployableResources);
+        camundaClient.syncResources(bpmnSyncProperties.getDeploymentName(), deployableResources);
     logDeploymentResponse(response);
     return response;
   }

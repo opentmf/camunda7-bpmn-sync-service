@@ -95,7 +95,7 @@ public class ReactiveBpmnSyncServiceImpl implements BpmnSyncService {
         bpmnSyncProperties.getDeploymentName(), bpmnSyncProperties.getBpmnVersion());
 
     return camundaClient
-        .syncBpmnFiles(bpmnSyncProperties.getDeploymentName(), deployableResources)
+        .syncResources(bpmnSyncProperties.getDeploymentName(), deployableResources)
         .doOnNext(this::logDeploymentResponse)
         .block();
   }
