@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.0.4</version>
+    <version>4.1.0</version>
   </parent>
   <groupId>org.opentmf.camunda</groupId>
   <artifactId>camunda7-bpmn-sync-service</artifactId>
@@ -56,15 +56,15 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
 
-    <opentmf-db-lock-service.version>2.0.0</opentmf-db-lock-service.version>
-    <opentmf-commons.version>2.1.0</opentmf-commons.version>
-    <opentmf-http-clients.version>2.1.0</opentmf-http-clients.version>
-    <opentmf-mockserver.version>2.1.2</opentmf-mockserver.version>
+    <opentmf-db-lock-service.version>2.2.0</opentmf-db-lock-service.version>
+    <opentmf-commons.version>2.2.0</opentmf-commons.version>
+    <opentmf-http-clients.version>2.1.3</opentmf-http-clients.version>
+    <opentmf-mockserver.version>2.1.4</opentmf-mockserver.version>
 
-    <archunit.version>1.4.1</archunit.version>
+    <archunit.version>1.4.2</archunit.version>
     <testcontainers.version>1.21.4</testcontainers.version>
 
-    <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
+    <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
     <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <central-publishing-maven-plugin.version>0.10.0</central-publishing-maven-plugin.version>
@@ -246,6 +246,27 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <!--
+            maven-compiler-plugin 3.14+ (managed by Spring Boot 4.1) no longer auto-discovers
+            annotation processors from the compile classpath, so they must be listed explicitly.
+            Versions are resolved from the Spring Boot dependency management.
+          -->
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+            </path>
+            <path>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-configuration-processor</artifactId>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
