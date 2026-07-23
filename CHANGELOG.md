@@ -29,6 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   opentmf-http-clients 2.1.0 → 2.1.3, opentmf-mockserver 2.1.2 → 2.1.8,
   ArchUnit 1.4.1 → 1.4.2, JaCoCo 0.8.14 → 0.8.15 and
   central-publishing-maven-plugin 0.10.0 → 0.11.0.
+- Upgraded Testcontainers 1.21.4 → 2.0.5, the version managed by the Spring Boot BOM (test scope
+  only). The module artifacts are renamed in 2.x (`testcontainers-postgresql`,
+  `testcontainers-junit-jupiter`), `PostgreSQLContainer` moved to the
+  `org.testcontainers.postgresql` package, and the tests now use plain `org.awaitility:awaitility`
+  instead of the Testcontainers-shaded copy.
 - Declared an explicit `maven-compiler-plugin` `annotationProcessorPaths` (Lombok +
   spring-boot-configuration-processor). Spring Boot 4.1 manages maven-compiler-plugin 3.15.0,
   which no longer auto-discovers annotation processors from the compile classpath; without this

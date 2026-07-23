@@ -1,11 +1,11 @@
 package org.opentmf.bpmn.sync.service;
 
+import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 import lombok.extern.slf4j.Slf4j;
 import org.opentmf.bpmn.sync.CamundaTestContainers;

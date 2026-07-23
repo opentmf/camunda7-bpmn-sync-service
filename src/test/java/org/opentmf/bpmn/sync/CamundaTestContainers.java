@@ -4,8 +4,8 @@ import java.time.Duration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.MountableFile;
 
 /**
@@ -15,7 +15,7 @@ import org.testcontainers.utility.MountableFile;
 public class CamundaTestContainers {
 
   final Network network;
-  final PostgreSQLContainer<?> postgres;
+  final PostgreSQLContainer postgres;
   final GenericContainer<?> mockServer;
   final GenericContainer<?> camunda;
 
@@ -23,7 +23,7 @@ public class CamundaTestContainers {
   public CamundaTestContainers() {
     network = Network.newNetwork();
 
-    postgres = new PostgreSQLContainer<>("postgres:18.3-alpine")
+    postgres = new PostgreSQLContainer("postgres:18.3-alpine")
         .withNetwork(network)
         .withNetworkAliases("postgresql")
         .withDatabaseName("db")

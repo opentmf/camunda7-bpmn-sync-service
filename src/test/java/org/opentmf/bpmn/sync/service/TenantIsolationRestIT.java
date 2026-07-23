@@ -1,10 +1,10 @@
 package org.opentmf.bpmn.sync.service;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
