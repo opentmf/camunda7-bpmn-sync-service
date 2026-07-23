@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `testcontainers-junit-jupiter`), `PostgreSQLContainer` moved to the
   `org.testcontainers.postgresql` package, and the tests now use plain `org.awaitility:awaitility`
   instead of the Testcontainers-shaded copy.
+- Tightened the maven-enforcer-plugin rules: the build now requires exactly JDK 17
+  (`[17,18)` - newer JDKs are rejected) and Maven 3.9.x (`[3.9,3.10)`).
 - Declared an explicit `maven-compiler-plugin` `annotationProcessorPaths` (Lombok +
   spring-boot-configuration-processor). Spring Boot 4.1 manages maven-compiler-plugin 3.15.0,
   which no longer auto-discovers annotation processors from the compile classpath; without this
