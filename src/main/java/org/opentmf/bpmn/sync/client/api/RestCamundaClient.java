@@ -14,7 +14,7 @@ import org.springframework.core.io.Resource;
  */
 public interface RestCamundaClient {
 
-  CamundaDeploymentResponse syncBpmnFiles(String deploymentName, Resource[] bpmnFiles);
+  CamundaDeploymentResponse syncResources(String deploymentName, Resource[] resources);
 
   ProcessDefinition getProcessDefinition(String key, int version);
 

@@ -31,3 +31,5 @@ build/
 ### VS Code ###
 .vscode/
 /derby.log
+# Local agent/design scratch (not part of the deliverable)
+.claude/

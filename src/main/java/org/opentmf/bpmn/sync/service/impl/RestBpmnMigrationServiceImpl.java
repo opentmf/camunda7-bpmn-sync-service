@@ -36,6 +36,9 @@ public class RestBpmnMigrationServiceImpl implements BpmnMigrationService {
   }
 
   private void migrate(CamundaDeploymentResponse deployment) {
+    // Migration only ever iterates deployedProcessDefinitions. Deployed DMN decision definitions
+    // live in their own response maps and have no process instances, so they are intentionally
+    // never migrated.
     log.info("Starting BPMN migration for {} deployed BPMNs.",
         deployment.getDeployedProcessDefinitions().size());
     long totalJobsCreated = 0;

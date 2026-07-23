@@ -88,6 +88,11 @@ class BpmnMigrationReactiveIT extends DockerCamundaBaseIT {
     try (MockedStatic<ResourceUtil> mock = Mockito.mockStatic(ResourceUtil.class)) {
 
       mock.when(() -> ResourceUtil.getResourceNameWithFolder(any())).thenCallRealMethod();
+      // This test exercises BPMN migration only; no DMN files are involved. getDeployableResources
+      // calls the real implementation, which combines the (stubbed) BPMN files with the (empty,
+      // stubbed) DMN files - so the deployment tracks whatever getBpmnFiles is stubbed to below.
+      mock.when(ResourceUtil::getDmnFiles).thenReturn(new Resource[0]);
+      mock.when(ResourceUtil::getDeployableResources).thenCallRealMethod();
       bpmnSyncProperties.setDeploymentName("TestDeployment");
 
       log.debug("\n\n// Initial Deployment");

@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- DMN deployment support: `*.dmn` files under `classpath:dmn/` are now deployed alongside the
+  BPMN files in the same Camunda deployment. Deployed decision definitions are exposed via
+  `CamundaDeploymentResponse.deployedDecisionDefinitions` /
+  `deployedDecisionRequirementsDefinitions` and are never subject to auto-migration.
+
+### Changed
+- Upgraded the parent to Spring Boot 4.1.0 (from 4.0.4).
+- Bumped opentmf-commons 2.1.0 → 2.2.0, opentmf-db-lock-service 2.0.0 → 2.2.0,
+  opentmf-http-clients 2.1.0 → 2.1.3, opentmf-mockserver 2.1.2 → 2.1.4,
+  ArchUnit 1.4.1 → 1.4.2 and JaCoCo 0.8.14 → 0.8.15.
+- Declared an explicit `maven-compiler-plugin` `annotationProcessorPaths` (Lombok +
+  spring-boot-configuration-processor). Spring Boot 4.1 manages maven-compiler-plugin 3.15.0,
+  which no longer auto-discovers annotation processors from the compile classpath; without this
+  the Lombok-generated members no longer compile.
+
+### Fixed
+- A deployment that changed only DMN files (no BPMN change) was logged as "nothing deployed" and
+  did not advance the db-lock version. The "did we deploy anything?" decision now counts BPMN and
+  DMN artifacts together (`CamundaDeploymentResponse.totalDeployedCount()`).
+
 ## [2.0.1] - 2026-03-25
 
 ### Changed
