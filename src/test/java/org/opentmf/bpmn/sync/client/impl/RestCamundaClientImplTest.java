@@ -1,11 +1,14 @@
 package org.opentmf.bpmn.sync.client.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
@@ -14,6 +17,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opentmf.bpmn.sync.config.CamundaProperties;
@@ -32,6 +36,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -45,6 +50,8 @@ class RestCamundaClientImplTest {
   @Mock private SyncTokenService tokenService;
 
   private RestCamundaClientImpl client;
+  private ClientProperties props;
+  private CamundaProperties camundaProperties;
 
   @BeforeEach
   void setUp() {
@@ -61,12 +68,16 @@ class RestCamundaClientImplTest {
     lenient().when(requestBodyUriSpec.body(any(Object.class))).thenReturn(requestBodyUriSpec);
     lenient().when(requestBodyUriSpec.retrieve()).thenReturn(responseSpec);
 
-    var props = new ClientProperties();
+    props = new ClientProperties();
     props.setNumRetries(0);
     props.setRetryWaitDuration(Duration.ofMillis(100L));
-    var camundaProperties = new CamundaProperties();
+    camundaProperties = new CamundaProperties();
     camundaProperties.setBaseUrl("http://localhost:8080/engine-rest");
-    client = new RestCamundaClientImpl(restClient, tokenService, props, camundaProperties);
+    client = new RestCamundaClientImpl(restClient, tokenService, props, camundaProperties, null);
+  }
+
+  private RestCamundaClientImpl tenantClient(String tenantId) {
+    return new RestCamundaClientImpl(restClient, tokenService, props, camundaProperties, tenantId);
   }
 
   @Test
@@ -121,6 +132,60 @@ class RestCamundaClientImplTest {
 
     var result = client.syncResources("deploy", new Resource[0]);
     assertNotNull(result);
+  }
+
+  @Test
+  void getProcessDefinition_withTenant_addsTenantIdInQueryParam() {
+    when(tokenService.getToken()).thenReturn("tok");
+    when(responseSpec.body(any(ParameterizedTypeReference.class)))
+        .thenReturn(List.of(new ProcessDefinition()));
+
+    tenantClient("tenant-a").getProcessDefinition("key", 2);
+
+    var uriCaptor = ArgumentCaptor.forClass(URI.class);
+    verify(requestHeadersUriSpec).uri(uriCaptor.capture());
+    assertTrue(uriCaptor.getValue().getQuery().contains("tenantIdIn=tenant-a"));
+  }
+
+  @Test
+  void getProcessDefinition_withoutTenant_omitsTenantIdInQueryParam() {
+    when(tokenService.getToken()).thenReturn("tok");
+    when(responseSpec.body(any(ParameterizedTypeReference.class)))
+        .thenReturn(List.of(new ProcessDefinition()));
+
+    client.getProcessDefinition("key", 2);
+
+    var uriCaptor = ArgumentCaptor.forClass(URI.class);
+    verify(requestHeadersUriSpec).uri(uriCaptor.capture());
+    assertFalse(uriCaptor.getValue().getQuery().contains("tenantIdIn"));
+  }
+
+  @Test
+  void syncResources_withTenant_addsTenantIdFormField() {
+    when(tokenService.getToken()).thenReturn("tok");
+    when(responseSpec.body(eq(CamundaDeploymentResponse.class)))
+        .thenReturn(new CamundaDeploymentResponse());
+
+    tenantClient("tenant-a").syncResources("deploy", new Resource[0]);
+
+    var bodyCaptor = ArgumentCaptor.forClass(Object.class);
+    verify(requestBodyUriSpec).body(bodyCaptor.capture());
+    var body = (MultiValueMap<String, Object>) bodyCaptor.getValue();
+    assertEquals("tenant-a", body.getFirst("tenant-id"));
+  }
+
+  @Test
+  void syncResources_withoutTenant_omitsTenantIdFormField() {
+    when(tokenService.getToken()).thenReturn("tok");
+    when(responseSpec.body(eq(CamundaDeploymentResponse.class)))
+        .thenReturn(new CamundaDeploymentResponse());
+
+    client.syncResources("deploy", new Resource[0]);
+
+    var bodyCaptor = ArgumentCaptor.forClass(Object.class);
+    verify(requestBodyUriSpec).body(bodyCaptor.capture());
+    var body = (MultiValueMap<String, Object>) bodyCaptor.getValue();
+    assertFalse(body.containsKey("tenant-id"));
   }
 
   @Test

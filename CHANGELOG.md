@@ -5,19 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.1.0] - 2026-07-23
 
 ### Added
 - DMN deployment support: `*.dmn` files under `classpath:dmn/` are now deployed alongside the
   BPMN files in the same Camunda deployment. Deployed decision definitions are exposed via
   `CamundaDeploymentResponse.deployedDecisionDefinitions` /
   `deployedDecisionRequirementsDefinitions` and are never subject to auto-migration.
+- Camunda 7 multi-tenant deployment support via the new optional `opentmf.bpmn-sync.tenant-id`
+  property. When set, the deployment is created under that tenant and every process-definition
+  lookup (including auto-migration's previous-version resolution) is tenant-scoped, so multiple
+  applications sharing one Camunda engine can deploy BPMNs with identical process ids without
+  colliding. When unset, behavior is identical to previous releases.
 
 ### Changed
 - Upgraded the parent to Spring Boot 4.1.0 (from 4.0.4).
-- Bumped opentmf-commons 2.1.0 → 2.2.0, opentmf-db-lock-service 2.0.0 → 2.2.0,
-  opentmf-http-clients 2.1.0 → 2.1.3, opentmf-mockserver 2.1.2 → 2.1.4,
-  ArchUnit 1.4.1 → 1.4.2 and JaCoCo 0.8.14 → 0.8.15.
+- Bumped opentmf-commons 2.1.0 → 2.2.0, opentmf-db-lock-service 2.0.0 → 2.2.1,
+  opentmf-http-clients 2.1.0 → 2.1.3, opentmf-mockserver 2.1.2 → 2.1.8,
+  ArchUnit 1.4.1 → 1.4.2, JaCoCo 0.8.14 → 0.8.15 and
+  central-publishing-maven-plugin 0.10.0 → 0.11.0.
 - Declared an explicit `maven-compiler-plugin` `annotationProcessorPaths` (Lombok +
   spring-boot-configuration-processor). Spring Boot 4.1 manages maven-compiler-plugin 3.15.0,
   which no longer auto-discovers annotation processors from the compile classpath; without this
@@ -115,10 +121,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/opentmf/camunda7-bpmn-sync-service/compare/v2.0.1...HEAD
-[2.0.1]: https://github.com/opentmf/camunda7-bpmn-sync-service/compare/v2.0.0...v2.0.1
-[2.0.0]: https://github.com/opentmf/camunda7-bpmn-sync-service/compare/v1.1.3...v2.0.0
-[1.1.3]: https://github.com/opentmf/camunda7-bpmn-sync-service/compare/v1.1.1...v1.1.3
+[2.1.0]: https://github.com/opentmf/camunda7-bpmn-sync-service/compare/camunda7-bpmn-sync-service-2.0.1...camunda7-bpmn-sync-service-2.1.0
+[2.0.1]: https://github.com/opentmf/camunda7-bpmn-sync-service/compare/camunda7-bpmn-sync-service-2.0.0...camunda7-bpmn-sync-service-2.0.1
+[2.0.0]: https://github.com/opentmf/camunda7-bpmn-sync-service/compare/camunda7-bpmn-sync-service-1.1.3...camunda7-bpmn-sync-service-2.0.0
+[1.1.3]: https://github.com/opentmf/camunda7-bpmn-sync-service/compare/camunda7-bpmn-sync-service-1.1.1...camunda7-bpmn-sync-service-1.1.3
 [1.1.1]: https://github.com/opentmf/camunda7-bpmn-sync-service/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/opentmf/camunda7-bpmn-sync-service/compare/v1.0.9...v1.1.0
 [1.0.9]: https://github.com/opentmf/camunda7-bpmn-sync-service/compare/v1.0.8...v1.0.9

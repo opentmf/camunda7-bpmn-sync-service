@@ -24,6 +24,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -40,14 +41,18 @@ public class RestCamundaClientImpl implements RestCamundaClient {
   private final SyncTokenService tokenService;
   private final ClientProperties clientProperties;
   private final CamundaProperties camundaProperties;
+  private final String tenantId;
 
   @Override
   public ProcessDefinition getProcessDefinition(String key, int version) {
-    URI uri = UriComponentsBuilder
+    var builder = UriComponentsBuilder
         .fromUriString(camundaProperties.getBaseUrl() + "/process-definition")
         .queryParam("key", key)
-        .queryParam("version", version)
-        .build().toUri();
+        .queryParam("version", version);
+    if (StringUtils.hasText(tenantId)) {
+      builder.queryParam("tenantIdIn", tenantId);
+    }
+    URI uri = builder.build().toUri();
     List<ProcessDefinition> list = doGet(uri, new ParameterizedTypeReference<>() {});
     return list != null && !list.isEmpty() ? list.get(0) : null;
   }
@@ -143,6 +148,9 @@ public class RestCamundaClientImpl implements RestCamundaClient {
     body.add("deployment-name", deploymentName);
     body.add("deployment-source", "BPMN Sync Service");
     body.add("deploy-changed-only", "true");
+    if (StringUtils.hasText(tenantId)) {
+      body.add("tenant-id", tenantId);
+    }
     for (Resource bpmn : resources) {
       body.add(ResourceUtil.getResourceNameWithFolder(bpmn), bpmn);
     }

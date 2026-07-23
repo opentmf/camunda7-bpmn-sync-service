@@ -77,6 +77,33 @@ opentmf:
 
 The BPMN Sync Service remembers the latest deployed BPMN versions. If the specified bpmnVersion is already the latest deployed version, then no synchronization will take place. Therefore, it is the developers' responsibility to increase the bpmn-version when any of the BPMN files changes, to enforce the BPMN synchronization.
 
+**tenant-id** (optional): Camunda 7 tenant id for multi-tenant deployments. When set, the
+deployment is created under that tenant and every process-definition lookup this service performs
+(including auto-migration's previous-version lookup) is scoped to it. This enables multiple
+applications that share one Camunda engine to deploy BPMNs with identical process ids without
+colliding: process-definition keys are unique *per tenant*, and `deploy-changed-only` duplicate
+filtering is evaluated per tenant, so the deployment name does not need to be tenant-unique. Leave
+unset for single-tenant deployments — the behavior is then identical to previous releases.
+
+```yaml
+opentmf:
+  bpmn-sync:
+    tenant-id: my-tenant
+```
+
+Notes on multi-tenant usage:
+- This service covers only deploy + consistency + migration. A consumer that also **starts,
+  queries, or fetches external tasks** on the shared Camunda must tenant-scope its own calls to
+  match: start by key via `POST /process-definition/key/{key}/tenant-id/{tenantId}/start`, add
+  `tenantIdIn` to process-instance/incident queries, and set
+  `@ExternalTaskSubscription(tenantIdIn = "...")` on external-task workers — otherwise a worker
+  fetches other tenants' tasks. Setting `tenant-id` here is necessary but not sufficient.
+- Use a given Camunda engine either fully single-tenant or fully multi-tenant, not mixed: a
+  tenant-less lookup can match tenant-tagged definitions, and starting a process by key without a
+  tenant fails when more than one tenant shares that key.
+- Each application (tenant) is expected to have its own datasource: the BPMN db-lock version
+  history is kept per datasource, not per tenant.
+
 ### 4. Disable JDBC Repositories
 JDBC template is used only to obtain the DB connections by the db lock service and the rest is performed by pure JDBC calls by the DB Lock service. However, Spring Boot does not know this beforehand and checks if JDBC repositories can also be used as the repository implementations. In order to let Spring Boot know that we don't want to use JDBC repositories, the following should be added to application.yml file:
 

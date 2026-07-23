@@ -70,7 +70,8 @@ class BpmnMigrationRestIT extends DockerCamundaBaseIT {
         (RestClient) ctx.getBean(ref + "RestClient"),
         (SyncTokenService) ctx.getBean(ref + "TokenService"),
         (ClientProperties) ctx.getBean(ref + "ClientProperties"),
-        camundaProperties));
+        camundaProperties,
+        bpmnSyncProperties.getTenantId()));
   }
 
   private BpmnSyncService buildSyncService(RestCamundaClient client) {

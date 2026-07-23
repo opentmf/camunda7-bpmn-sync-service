@@ -25,6 +25,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.jspecify.annotations.NonNull;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -44,6 +45,7 @@ public class ReactiveCamundaClientImpl implements ReactiveCamundaClient {
   private final TokenService tokenService;
   private final ClientProperties clientProperties;
   private final CamundaProperties camundaProperties;
+  private final String tenantId;
 
   @Override
   public Mono<ProcessDefinition> getProcessDefinition(String key, int version) {
@@ -107,12 +109,15 @@ public class ReactiveCamundaClientImpl implements ReactiveCamundaClient {
     return URI.create(camundaProperties.getBaseUrl() + "/deployment/create");
   }
 
-  private URI processDefinitionsUri(String key, int version) {
-    return UriComponentsBuilder
+  URI processDefinitionsUri(String key, int version) {
+    var builder = UriComponentsBuilder
         .fromUriString(camundaProperties.getBaseUrl() + "/process-definition")
         .queryParam("key", key)
-        .queryParam("version", version)
-        .build().toUri();
+        .queryParam("version", version);
+    if (StringUtils.hasText(tenantId)) {
+      builder.queryParam("tenantIdIn", tenantId);
+    }
+    return builder.build().toUri();
   }
 
   private URI processInstanceCountUri(String processDefinitionId) {
@@ -131,12 +136,15 @@ public class ReactiveCamundaClientImpl implements ReactiveCamundaClient {
   }
 
   @NonNull
-  private MultiValueMap<String, HttpEntity<?>> getMultipartRequest(String deploymentName,
+  MultiValueMap<String, HttpEntity<?>> getMultipartRequest(String deploymentName,
       Resource[] resources) {
     var builder = new org.springframework.http.client.MultipartBodyBuilder();
     builder.part("deployment-name", deploymentName);
     builder.part("deployment-source", "BPMN Sync Service");
     builder.part("deploy-changed-only", "true");
+    if (StringUtils.hasText(tenantId)) {
+      builder.part("tenant-id", tenantId);
+    }
     for (Resource bpmn : resources) {
       builder.part(ResourceUtil.getResourceNameWithFolder(bpmn), bpmn);
     }

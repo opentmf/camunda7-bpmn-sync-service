@@ -57,6 +57,14 @@ public class BpmnSyncProperties {
   private boolean autoMigrate = false;
 
   /**
+   * Optional Camunda 7 tenant id. When set, the deployment is created under this tenant and every
+   * process-definition lookup this service performs is scoped to it — enabling multiple
+   * applications that share one Camunda engine to deploy BPMNs with identical process ids without
+   * colliding. Leave unset (null/blank) for single-tenant / legacy deployments (default).
+   */
+  private String tenantId;
+
+  /**
    * The client-ref id to use. This id is the prefix to the following exposed beans:
    * <ul>
    *   <li>WebClient (or RestClient)</li>

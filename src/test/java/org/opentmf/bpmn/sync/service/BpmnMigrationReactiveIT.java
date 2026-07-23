@@ -70,7 +70,8 @@ class BpmnMigrationReactiveIT extends DockerCamundaBaseIT {
         (WebClient) ctx.getBean(ref + "WebClient"),
         (TokenService) ctx.getBean(ref + "TokenService"),
         (ClientProperties) ctx.getBean(ref + "ClientProperties"),
-        camundaProperties));
+        camundaProperties,
+        bpmnSyncProperties.getTenantId()));
   }
 
   private BpmnSyncService buildSyncService(ReactiveCamundaClient client) {

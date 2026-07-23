@@ -48,6 +48,7 @@ public abstract class BaseIT {
         (WebClient) ctx.getBean(ref + "WebClient"),
         (TokenService) ctx.getBean(ref + "TokenService"),
         (ClientProperties) ctx.getBean(ref + "ClientProperties"),
-        camundaProperties);
+        camundaProperties,
+        bpmnSyncProperties.getTenantId());
   }
 }
