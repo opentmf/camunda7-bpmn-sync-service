@@ -44,7 +44,7 @@ Import opentmf-versions for managing the opentmf library dependencies
   </dependencies>
 </dependencyManagement>
 ```
-Depend on the camunda7-bpmn-sync-service: 
+Depend on the camunda7-bpmn-sync-service:
 ```xml
   <dependency>
     <groupId>org.opentmf.camunda</groupId>
