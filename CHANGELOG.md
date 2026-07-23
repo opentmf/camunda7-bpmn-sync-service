@@ -19,7 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   colliding. When unset, behavior is identical to previous releases.
 
 ### Changed
-- Upgraded the parent to Spring Boot 4.1.0 (from 4.0.4).
+- Upgraded to Spring Boot 4.1.0 (from 4.0.4).
+- Replaced the `spring-boot-starter-parent` parent with an imported `spring-boot-dependencies`
+  BOM. The Spring Boot version is now the `spring-boot.version` property, so
+  `versions:display-property-updates` reports Spring Boot upgrades. Plugin versions formerly
+  inherited from the parent's pluginManagement (compiler, enforcer, surefire, failsafe, source,
+  javadoc) are now pinned via properties and must be kept in sync on Spring Boot upgrades.
 - Bumped opentmf-commons 2.1.0 → 2.2.0, opentmf-db-lock-service 2.0.0 → 2.2.1,
   opentmf-http-clients 2.1.0 → 2.1.3, opentmf-mockserver 2.1.2 → 2.1.8,
   ArchUnit 1.4.1 → 1.4.2, JaCoCo 0.8.14 → 0.8.15 and
