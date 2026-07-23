@@ -98,8 +98,31 @@ opentmf:
     enabled: false
 ```
 
-### 6. Expose `objectMapper` Bean
-The BPMN Sync Service requires the `objectMapper` bean to serialize and deserialize the Camunda API exchanges. Therefore it is required to expose a bean of type `com.fasterxml.jackson.databind.ObjectMapper` with the bean name `objectMapper`.
+### 6. JSON Mapper Customization (optional)
+No mapper bean is required. The BPMN Sync Service serializes and deserializes the Camunda API
+exchanges with the opentmf default Jackson 3 `JsonMapper`, provided by `JacksonUtil` from
+opentmf-commons (non-null inclusion, permissive `OffsetDateTime` handling).
+
+If your application needs a customized mapper (extra modules, mix-ins, subtypes), build it with
+`JacksonUtil.defaultMapperBuilder()` and install it via `JacksonUtil.setDefaultJsonMapper(...)`,
+optionally exposing it as a bean so Spring uses the same instance:
+```java
+@Configuration
+public class JacksonConfig {
+
+  @Primary
+  @Bean
+  public JsonMapper jsonMapper() {
+    var mapper = JacksonUtil.defaultMapperBuilder()
+        .addMixIn(Foo.class, FooMixin.class)
+        .build();
+    JacksonUtil.setDefaultJsonMapper(mapper);
+    return mapper;
+  }
+}
+```
+Note: a mapper built this way does not inherit `spring.jackson.*` properties — the builder provides
+a consistent baseline across all microservices that use the opentmf libraries.
 
 ## Sample Logs
 Here are some sample log statements produced by the integration test that walks the deployment/migration scenarios (`BpmnMigrationRestIT`):
