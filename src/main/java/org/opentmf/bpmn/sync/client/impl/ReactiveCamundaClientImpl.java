@@ -46,6 +46,7 @@ public class ReactiveCamundaClientImpl implements ReactiveCamundaClient {
   private final ClientProperties clientProperties;
   private final CamundaProperties camundaProperties;
   private final String tenantId;
+  private final String resourceLocation;
 
   @Override
   public Mono<ProcessDefinition> getProcessDefinition(String key, int version) {
@@ -146,7 +147,7 @@ public class ReactiveCamundaClientImpl implements ReactiveCamundaClient {
       builder.part("tenant-id", tenantId);
     }
     for (Resource bpmn : resources) {
-      builder.part(ResourceUtil.getResourceNameWithFolder(bpmn), bpmn);
+      builder.part(ResourceUtil.getResourceNameWithFolder(bpmn, resourceLocation), bpmn);
     }
     return builder.build();
   }

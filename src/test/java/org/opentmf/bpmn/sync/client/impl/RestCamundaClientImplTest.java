@@ -73,11 +73,13 @@ class RestCamundaClientImplTest {
     props.setRetryWaitDuration(Duration.ofMillis(100L));
     camundaProperties = new CamundaProperties();
     camundaProperties.setBaseUrl("http://localhost:8080/engine-rest");
-    client = new RestCamundaClientImpl(restClient, tokenService, props, camundaProperties, null);
+    client = new RestCamundaClientImpl(restClient, tokenService, props, camundaProperties, null,
+        "classpath:bpmn/");
   }
 
   private RestCamundaClientImpl tenantClient(String tenantId) {
-    return new RestCamundaClientImpl(restClient, tokenService, props, camundaProperties, tenantId);
+    return new RestCamundaClientImpl(restClient, tokenService, props, camundaProperties, tenantId,
+        "classpath:bpmn/");
   }
 
   @Test

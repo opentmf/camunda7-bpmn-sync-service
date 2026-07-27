@@ -71,7 +71,8 @@ class BpmnMigrationRestIT extends DockerCamundaBaseIT {
         (SyncTokenService) ctx.getBean(ref + "TokenService"),
         (ClientProperties) ctx.getBean(ref + "ClientProperties"),
         camundaProperties,
-        bpmnSyncProperties.getTenantId()));
+        bpmnSyncProperties.getTenantId(),
+        bpmnSyncProperties.getResourceLocation()));
   }
 
   private BpmnSyncService buildSyncService(RestCamundaClient client) {
@@ -88,37 +89,37 @@ class BpmnMigrationRestIT extends DockerCamundaBaseIT {
 
     try (MockedStatic<ResourceUtil> mock = Mockito.mockStatic(ResourceUtil.class)) {
 
-      mock.when(() -> ResourceUtil.getResourceNameWithFolder(any())).thenCallRealMethod();
+      mock.when(() -> ResourceUtil.getResourceNameWithFolder(any(), any())).thenCallRealMethod();
       // This test exercises BPMN migration only; no DMN files are involved. getDeployableResources
       // calls the real implementation, which combines the (stubbed) BPMN files with the (empty,
       // stubbed) DMN files - so the deployment tracks whatever getBpmnFiles is stubbed to below.
-      mock.when(ResourceUtil::getDmnFiles).thenReturn(new Resource[0]);
-      mock.when(ResourceUtil::getDeployableResources).thenCallRealMethod();
+      mock.when(() -> ResourceUtil.getDmnFiles(any())).thenReturn(new Resource[0]);
+      mock.when(() -> ResourceUtil.getDeployableResources(any())).thenCallRealMethod();
       bpmnSyncProperties.setDeploymentName("TestDeployment");
 
       log.debug("\n\n// Initial Deployment");
-      mock.when(ResourceUtil::getBpmnFiles).thenReturn(BPMN_V1);
+      mock.when(() -> ResourceUtil.getBpmnFiles(any())).thenReturn(BPMN_V1);
       bpmnSyncProperties.setAutoMigrate(false);
       bpmnSyncProperties.setBpmnVersion("v1");
       Assertions.assertDoesNotThrow(localSyncService::ensureBpmnConsistency);
       verify(camundaClient, times(0)).getProcessDefinition(anyString(), anyInt());
 
       log.debug("\n\n// Same Version, Deployment Not Necessary");
-      mock.when(ResourceUtil::getBpmnFiles).thenReturn(BPMN_V1);
+      mock.when(() -> ResourceUtil.getBpmnFiles(any())).thenReturn(BPMN_V1);
       bpmnSyncProperties.setAutoMigrate(false);
       bpmnSyncProperties.setBpmnVersion("v1");
       Assertions.assertDoesNotThrow(localSyncService::ensureBpmnConsistency);
       verify(camundaClient, times(0)).getProcessDefinition(anyString(), anyInt());
 
       log.debug("\n\n// Attempted Deployment, But No BPMN Change");
-      mock.when(ResourceUtil::getBpmnFiles).thenReturn(BPMN_V1);
+      mock.when(() -> ResourceUtil.getBpmnFiles(any())).thenReturn(BPMN_V1);
       bpmnSyncProperties.setAutoMigrate(true);
       bpmnSyncProperties.setBpmnVersion("v1.1");
       Assertions.assertDoesNotThrow(localSyncService::ensureBpmnConsistency);
       verify(camundaClient, times(0)).getProcessDefinition(anyString(), anyInt());
 
       log.debug("\n\n// Deployment, Changed BPMN, No Process Instance, Migration Not Necessary");
-      mock.when(ResourceUtil::getBpmnFiles).thenReturn(BPMN_V2);
+      mock.when(() -> ResourceUtil.getBpmnFiles(any())).thenReturn(BPMN_V2);
       bpmnSyncProperties.setAutoMigrate(true);
       bpmnSyncProperties.setBpmnVersion("v2");
       var deploy2 = Assertions.assertDoesNotThrow(localSyncService::ensureBpmnConsistency);
@@ -133,7 +134,7 @@ class BpmnMigrationRestIT extends DockerCamundaBaseIT {
           .pollInterval(500, TimeUnit.MILLISECONDS)
           .until(() -> processExists(camundaClient, deploy2, MAIN_BPMN_PROCESS_KEY));
 
-      mock.when(ResourceUtil::getBpmnFiles).thenReturn(BPMN_V3);
+      mock.when(() -> ResourceUtil.getBpmnFiles(any())).thenReturn(BPMN_V3);
       bpmnSyncProperties.setAutoMigrate(true);
       bpmnSyncProperties.setBpmnVersion("v3");
       var deploy3 = Assertions.assertDoesNotThrow(localSyncService::ensureBpmnConsistency);

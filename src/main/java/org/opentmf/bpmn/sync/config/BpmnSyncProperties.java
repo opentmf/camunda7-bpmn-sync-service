@@ -57,6 +57,14 @@ public class BpmnSyncProperties {
   private boolean autoMigrate = false;
 
   /**
+   * The folder that holds the deployable {@code *.bpmn} and {@code *.dmn} files. The folder is
+   * scanned recursively and the sub-folder structure below it is preserved in the Camunda resource
+   * names. The location must exist; otherwise the synchronization fails at startup.
+   */
+  @NotEmpty
+  private String resourceLocation = "classpath:bpmn/";
+
+  /**
    * Optional Camunda 7 tenant id. When set, the deployment is created under this tenant and every
    * process-definition lookup this service performs is scoped to it — enabling multiple
    * applications that share one Camunda engine to deploy BPMNs with identical process ids without

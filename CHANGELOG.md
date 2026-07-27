@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2026-07-27
+
+### Added
+- New optional `opentmf.bpmn-sync.resource-location` property (default `classpath:bpmn/`): the
+  single folder that holds the deployable `*.bpmn` **and** `*.dmn` files. The folder is scanned
+  recursively and the sub-folder structure below it is preserved in the Camunda resource names.
+  The location must exist — otherwise the synchronization fails at startup with an error that
+  names the property.
+
+### Changed
+- DMN files are no longer read from the separate `classpath:dmn/` folder. They now live under the
+  configured resource location together with the BPMN files (e.g. in a `dmn/` sub-folder of
+  `classpath:bpmn/`).
+
+### Fixed
+- Applications without a `classpath:dmn/` folder failed at startup, because 2.1.0 unconditionally
+  scanned that folder for DMN files. With the single configurable resource location there is no
+  separate DMN folder scan anymore.
+
 ## [2.1.0] - 2026-07-23
 
 ### Added
@@ -133,6 +152,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
+[2.1.1]: https://github.com/opentmf/camunda7-bpmn-sync-service/compare/camunda7-bpmn-sync-service-2.1.0...camunda7-bpmn-sync-service-2.1.1
 [2.1.0]: https://github.com/opentmf/camunda7-bpmn-sync-service/compare/camunda7-bpmn-sync-service-2.0.1...camunda7-bpmn-sync-service-2.1.0
 [2.0.1]: https://github.com/opentmf/camunda7-bpmn-sync-service/compare/camunda7-bpmn-sync-service-2.0.0...camunda7-bpmn-sync-service-2.0.1
 [2.0.0]: https://github.com/opentmf/camunda7-bpmn-sync-service/compare/camunda7-bpmn-sync-service-1.1.3...camunda7-bpmn-sync-service-2.0.0

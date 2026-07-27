@@ -25,8 +25,9 @@ abstract class BpmnSyncBaseIT extends DockerCamundaBaseIT {
     assertNotNull(result.getDeployedProcessDefinitions());
     assertEquals(17, result.getDeployedProcessDefinitions().size());
 
-    // 2 DMN files under classpath:dmn/ land in their own response map, separate from the process
-    // definitions, and are therefore never touched by auto-migration.
+    // 2 DMN files under the resource location (classpath:bpmn/dmn/) land in their own response
+    // map, separate from the process definitions, and are therefore never touched by
+    // auto-migration.
     assertNotNull(result.getDeployedDecisionDefinitions());
     assertEquals(2, result.getDeployedDecisionDefinitions().size());
   }

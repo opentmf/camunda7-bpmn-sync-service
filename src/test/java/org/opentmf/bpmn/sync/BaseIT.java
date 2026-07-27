@@ -49,6 +49,7 @@ public abstract class BaseIT {
         (TokenService) ctx.getBean(ref + "TokenService"),
         (ClientProperties) ctx.getBean(ref + "ClientProperties"),
         camundaProperties,
-        bpmnSyncProperties.getTenantId());
+        bpmnSyncProperties.getTenantId(),
+        bpmnSyncProperties.getResourceLocation());
   }
 }

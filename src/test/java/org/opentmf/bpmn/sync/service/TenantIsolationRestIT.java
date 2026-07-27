@@ -71,7 +71,8 @@ class TenantIsolationRestIT extends DockerCamundaBaseIT {
         (SyncTokenService) ctx.getBean(ref + "TokenService"),
         (ClientProperties) ctx.getBean(ref + "ClientProperties"),
         camundaProperties,
-        tenantId);
+        tenantId,
+        bpmnSyncProperties.getResourceLocation());
   }
 
   @Test

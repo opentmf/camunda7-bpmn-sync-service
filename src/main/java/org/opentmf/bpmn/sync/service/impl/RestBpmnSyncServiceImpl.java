@@ -82,9 +82,10 @@ public class RestBpmnSyncServiceImpl implements BpmnSyncService {
   private Resource[] ensurePropertiesProvided() {
     Assert.notNull(bpmnSyncProperties.getDeploymentName(), "Application name must be provided.");
     Assert.notNull(bpmnSyncProperties.getBpmnVersion(), "BPMN version must be provided.");
-    Resource[] deployableResources = ResourceUtil.getDeployableResources();
-    Assert.notEmpty(deployableResources,
-        "No deployable resources found in classpath:bpmn or classpath:dmn folders.");
+    Resource[] deployableResources =
+        ResourceUtil.getDeployableResources(bpmnSyncProperties.getResourceLocation());
+    Assert.notEmpty(deployableResources, "No deployable *.bpmn or *.dmn files found under "
+        + bpmnSyncProperties.getResourceLocation() + ".");
     return deployableResources;
   }
 
