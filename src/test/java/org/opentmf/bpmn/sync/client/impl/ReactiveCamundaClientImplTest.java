@@ -19,7 +19,8 @@ class ReactiveCamundaClientImplTest {
     props.setRetryWaitDuration(Duration.ofMillis(100L));
     var camundaProperties = new CamundaProperties();
     camundaProperties.setBaseUrl("http://localhost:8080/engine-rest");
-    return new ReactiveCamundaClientImpl(null, null, props, camundaProperties, tenantId);
+    return new ReactiveCamundaClientImpl(null, null, props, camundaProperties, tenantId,
+        "classpath:bpmn/");
   }
 
   @Test

@@ -1,6 +1,7 @@
 # Camunda7 BPMN Synchronization Service
-This service synchronizes the BPMN files under `classpath:bpmn/` **and the DMN files under
-`classpath:dmn/`** with the configured Camunda server, in a single, version-guarded deployment.
+This service synchronizes the BPMN **and DMN** files under a single configurable resource
+location (`opentmf.bpmn-sync.resource-location`, default `classpath:bpmn/`) with the configured
+Camunda server, in a single, version-guarded deployment.
 
 Depending on the value of auto-migrate, migrates the deployed BPMN's previous version's process instances to the newly deployed version. DMN decision definitions have no process instances and are never migrated.
 
@@ -52,8 +53,8 @@ Depend on the camunda7-bpmn-sync-service:
   </dependency>
 ```
 ### 2. Reorganize the BPMN and DMN files
-1. In your microservice, the BPMN files must be under **src/main/resources/bpmn** folder. All *.bpmn files within this folder and its sub-folders will be used in the synchronization process.
-2. DMN files (decision tables / DRDs) must be under **src/main/resources/dmn** folder. All *.dmn files within this folder and its sub-folders are deployed together with the BPMN files, in the **same** Camunda deployment. A single `opentmf.bpmn-sync.bpmn-version` governs the whole bundle — bump it whenever **any** BPMN *or* DMN changes.
+1. In your microservice, both the BPMN and the DMN files must be under the folder configured via `opentmf.bpmn-sync.resource-location` (default: **src/main/resources/bpmn**, i.e. `classpath:bpmn/`). All *.bpmn and *.dmn files within this folder and its sub-folders will be used in the synchronization process, in the **same** Camunda deployment. The sub-folder structure below the resource location is preserved in the Camunda resource names, so feel free to keep BPMNs and DMNs (decision tables / DRDs) in separate sub-folders. A single `opentmf.bpmn-sync.bpmn-version` governs the whole bundle — bump it whenever **any** BPMN *or* DMN changes.
+2. The configured resource location must exist — if it cannot be resolved at startup, the synchronization fails with an error pointing at `opentmf.bpmn-sync.resource-location`.
     * Note: If your microservice uses embedded Camunda for its IT tests, you can benefit from this camunda configuration property: [camunda.deployment-resource-pattern](https://docs.camunda.org/manual/7.19/user-guide/spring-boot-integration/configuration/)
 3. Ensure one BPMN/DMN is deployed by one microservice. Do not try to deploy the same resource in a different microservice.
 
@@ -76,6 +77,17 @@ opentmf:
 3. `${client}ClientProperties`
 
 The BPMN Sync Service remembers the latest deployed BPMN versions. If the specified bpmnVersion is already the latest deployed version, then no synchronization will take place. Therefore, it is the developers' responsibility to increase the bpmn-version when any of the BPMN files changes, to enforce the BPMN synchronization.
+
+**resource-location** (optional, default `classpath:bpmn/`): The folder that holds the deployable
+`*.bpmn` and `*.dmn` files. It is scanned recursively and the sub-folder structure below it is
+preserved in the Camunda resource names. The location must exist; otherwise the synchronization
+fails at startup.
+
+```yaml
+opentmf:
+  bpmn-sync:
+    resource-location: classpath:processes/
+```
 
 **tenant-id** (optional): Camunda 7 tenant id for multi-tenant deployments. When set, the
 deployment is created under that tenant and every process-definition lookup this service performs

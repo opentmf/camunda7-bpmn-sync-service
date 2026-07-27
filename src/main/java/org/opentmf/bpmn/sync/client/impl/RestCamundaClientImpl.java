@@ -42,6 +42,7 @@ public class RestCamundaClientImpl implements RestCamundaClient {
   private final ClientProperties clientProperties;
   private final CamundaProperties camundaProperties;
   private final String tenantId;
+  private final String resourceLocation;
 
   @Override
   public ProcessDefinition getProcessDefinition(String key, int version) {
@@ -152,7 +153,7 @@ public class RestCamundaClientImpl implements RestCamundaClient {
       body.add("tenant-id", tenantId);
     }
     for (Resource bpmn : resources) {
-      body.add(ResourceUtil.getResourceNameWithFolder(bpmn), bpmn);
+      body.add(ResourceUtil.getResourceNameWithFolder(bpmn, resourceLocation), bpmn);
     }
 
     return restClient.post()

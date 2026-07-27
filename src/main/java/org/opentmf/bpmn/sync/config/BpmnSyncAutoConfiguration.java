@@ -52,7 +52,8 @@ public class BpmnSyncAutoConfiguration implements SmartInitializingSingleton {
       var webClient = (WebClient) ctx.getBean(clientRef + "WebClient");
       var tokenService = (TokenService) ctx.getBean(clientRef + "TokenService");
       var client = new ReactiveCamundaClientImpl(webClient, tokenService, clientProperties,
-          camundaProperties, bpmnSyncProperties.getTenantId());
+          camundaProperties, bpmnSyncProperties.getTenantId(),
+          bpmnSyncProperties.getResourceLocation());
       var migration = new ReactiveBpmnMigrationServiceImpl(bpmnSyncProperties, client);
       this.bpmnSyncService = new ReactiveBpmnSyncServiceImpl(
           bpmnSyncProperties, dbLockService, client, migration);
@@ -61,7 +62,8 @@ public class BpmnSyncAutoConfiguration implements SmartInitializingSingleton {
       var restClient = (RestClient) ctx.getBean(clientRef + "RestClient");
       var tokenService = (SyncTokenService) ctx.getBean(clientRef + "TokenService");
       var client = new RestCamundaClientImpl(restClient, tokenService, clientProperties,
-          camundaProperties, bpmnSyncProperties.getTenantId());
+          camundaProperties, bpmnSyncProperties.getTenantId(),
+          bpmnSyncProperties.getResourceLocation());
       var migration = new RestBpmnMigrationServiceImpl(bpmnSyncProperties, client);
       this.bpmnSyncService = new RestBpmnSyncServiceImpl(
           bpmnSyncProperties, dbLockService, client, migration);
